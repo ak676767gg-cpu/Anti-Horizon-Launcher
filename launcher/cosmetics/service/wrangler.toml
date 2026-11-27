@@ -1,0 +1,20 @@
+# The Anti-Horizon cosmetics service (Cloudflare Worker + D1). See src/index.js for what it does and stores.
+#
+# Try it on this PC:  npx wrangler dev --local     (after: npx wrangler d1 execute cosmetics --local --file schema.sql)
+# Go live (once):     npx wrangler d1 create cosmetics   -> put its database_id below
+#                     npx wrangler d1 execute cosmetics --remote --file schema.sql
+#                     a random SECRET:  npx wrangler secret put SECRET
+#                     npx wrangler deploy
+name = "anti-horizon-cosmetics"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+workers_dev = false
+routes = [{ pattern = "cosmetics.anti-horizon.com", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cosmetics"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[observability]
+enabled = false

@@ -4,11 +4,13 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,14 @@ public final class AntiHorizonClient implements ClientModInitializer {
 		Config.load();
 		ClientTickEvents.END_CLIENT_TICK.register(AntiHorizonClient::watchMenuKey);
 		ClientTickEvents.END_CLIENT_TICK.register(Hud::tick);
+		// Cosmetics: who wears what, then wings and head pieces on every player's model (capes go through SkinMixin).
+		if (Cosmetics.RELEASED) {
+			Cosmetics.load();
+			ClientTickEvents.END_CLIENT_TICK.register(Cosmetics::tick);
+			LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, layers, context) -> {
+				if (renderer instanceof AvatarRenderer<?> avatar) layers.register(new CosmeticsLayer(avatar));
+			});
+		}
 		HudRenderCallback.EVENT.register((graphics, tick) -> Hud.render(graphics));
 		// Combo counter and reach: when you swing at something (the client's own swing, not the server's copy of it).
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {

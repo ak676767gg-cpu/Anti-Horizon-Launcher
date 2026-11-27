@@ -5,7 +5,8 @@
 	"plugin": "com.antihorizon.boot.MixinGate$V263",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"PanoramaMixin"
+		"PanoramaMixin",
+		"SkinMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

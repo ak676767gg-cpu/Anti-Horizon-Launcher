@@ -5,13 +5,16 @@
 #![windows_subsystem = "windows"]
 
 mod auth;
+mod clips;
 mod console;
 mod content;
+mod cosmetics;
 mod deps;
 mod installed;
 mod mc;
 mod mods;
 mod net;
+mod platform;
 mod presets;
 mod skins;
 mod store;
@@ -37,6 +40,9 @@ fn main() {
             mc::stop_instance,
             mc::open_instance_folder,
             console::get_game_log,
+            clips::clip,
+            cosmetics::cosmetics_get,
+            cosmetics::cosmetics_set,
             update::update_check,
             update::update_install,
             mods::search_mods,

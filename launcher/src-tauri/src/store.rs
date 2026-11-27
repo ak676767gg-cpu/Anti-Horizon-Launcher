@@ -1,4 +1,5 @@
-// Where the launcher keeps things (%APPDATA%\AntiHorizonLauncher, never the normal .minecraft) and its settings.
+// Where the launcher keeps things (AntiHorizonLauncher in %APPDATA% on Windows, ~/Library/Application Support on a
+// Mac, ~/.local/share on Linux; never the normal .minecraft) and its settings.
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -11,8 +12,7 @@ pub fn e<E: std::fmt::Display>(err: E) -> String {
 pub fn root() -> PathBuf {
     static ROOT: OnceLock<PathBuf> = OnceLock::new();
     ROOT.get_or_init(|| {
-        let base = std::env::var_os("APPDATA").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
-        let dir = base.join("AntiHorizonLauncher");
+        let dir = crate::platform::data_dir().join("AntiHorizonLauncher");
         let _ = std::fs::create_dir_all(&dir);
         dir
     })
@@ -82,24 +82,14 @@ pub fn save_settings(settings: Settings) -> Result<(), String> {
     write_json(&root().join("settings.json"), &s)
 }
 
-/// This PC's memory in MB, so Settings can size the memory slider to it. 0 if Windows won't say.
+/// This computer's memory in MB, so Settings can size the memory slider to it. 0 if the system won't say.
 #[tauri::command]
 pub fn system_memory_mb() -> u64 {
-    #[cfg(windows)]
-    {
-        use windows_sys::Win32::System::SystemInformation::{GlobalMemoryStatusEx, MEMORYSTATUSEX};
-        // SAFETY: a zeroed MEMORYSTATUSEX with its length set is what GlobalMemoryStatusEx expects to fill.
-        let mut status: MEMORYSTATUSEX = unsafe { std::mem::zeroed() };
-        status.dwLength = std::mem::size_of::<MEMORYSTATUSEX>() as u32;
-        if unsafe { GlobalMemoryStatusEx(&mut status) } != 0 {
-            return status.ullTotalPhys / (1024 * 1024);
-        }
-    }
-    0
+    crate::platform::memory_mb()
 }
 
 pub fn open_path(path: &Path) {
-    let _ = std::process::Command::new("explorer").arg(path).spawn();
+    crate::platform::open(path);
 }
 
 #[tauri::command]
@@ -113,6 +103,6 @@ pub fn open_url(url: String) -> Result<(), String> {
     if !url.starts_with("https://") || url.chars().any(|c| c.is_whitespace() || c == '"') {
         return Err("Only https links can be opened.".into());
     }
-    std::process::Command::new("explorer").arg(&url).spawn().map_err(e)?;
+    crate::platform::open_link(&url).map_err(e)?;
     Ok(())
 }

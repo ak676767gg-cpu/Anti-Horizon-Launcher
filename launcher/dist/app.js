@@ -4,6 +4,12 @@
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 
+// The system this copy runs on, for its own words (Recycle Bin or Trash) and its own window buttons on a Mac.
+const OS = /Mac/.test(navigator.userAgent) ? "mac" : /Linux|X11/.test(navigator.userAgent) ? "linux" : "windows";
+const BIN = OS === "windows" ? "Recycle Bin" : "Trash";
+const FILES = OS === "mac" ? "Finder" : OS === "windows" ? "Explorer" : "the file manager";
+document.documentElement.classList.add(`os-${OS}`);
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -144,6 +150,17 @@ const openFolder = (id, sub) => invoke("open_instance_folder", { id, sub }).catc
 // The game's black holes. By default each section has its own; Settings can put one everywhere or shuffle them
 // each time the launcher opens. Two layers take turns, so a change is a crossfade.
 const BGS = [
+  // Live: the Anti-Horizon game's title-screen sights (downloaded the first time they're used; a still until then).
+  { id: "clip-galactic-core", name: "Galactic-core black hole", clip: "galactic-core" },
+  { id: "clip-emission-nebula", name: "Emission nebula", clip: "emission-nebula" },
+  { id: "clip-stellar-black-hole", name: "Stellar-origin black hole", clip: "stellar-black-hole" },
+  { id: "clip-interstallar", name: "The Interstallar", clip: "interstallar" },
+  { id: "clip-molecular-cloud", name: "Molecular cloud", clip: "molecular-cloud" },
+  { id: "clip-massive-black-hole", name: "Massive black hole", clip: "massive-black-hole" },
+  { id: "clip-singularity", name: "Singularity", clip: "singularity" },
+  { id: "clip-galactic-nebula", name: "Galactic nebula", clip: "galactic-nebula" },
+  { id: "clip-intermediate-black-hole", name: "Intermediate-mass black hole", clip: "intermediate-black-hole" },
+  { id: "clip-ultramassive-black-hole", name: "Ultramassive black hole", clip: "ultramassive-black-hole" },
   { id: "home", name: "Event horizon" },
   { id: "mods", name: "Edge-on" },
   { id: "accounts", name: "Frost" },
@@ -156,8 +173,11 @@ const BGS = [
   { id: "emerald", name: "Emerald" },
   { id: "violet", name: "Violet" },
 ];
-const PAGES = { play: "Play", mods: "Mods", skins: "Skins", settings: "Settings" };
-const PER_PAGE = { play: "home", mods: "mods", skins: "accounts", settings: "settings" };
+const PAGES = { play: "Play", mods: "Mods", skins: "Skins", cosmetics: "Cosmetics", settings: "Settings" };
+const PER_PAGE = {
+  play: "clip-interstallar", mods: "clip-galactic-core", skins: "clip-stellar-black-hole",
+  cosmetics: "clip-ultramassive-black-hole", settings: "clip-massive-black-hole",
+};
 let shuffled = null;
 let backdropLayer = 0;
 
@@ -165,7 +185,7 @@ function backdrops() {
   const mode = remember("bg-mode") || "pages";
   if (mode === "one") {
     const id = BGS.some((b) => b.id === remember("bg-pick")) ? remember("bg-pick") : "home";
-    return { play: id, mods: id, skins: id, settings: id };
+    return { play: id, mods: id, skins: id, cosmetics: id, settings: id };
   }
   if (mode === "shuffle") {
     if (!shuffled) {
@@ -174,7 +194,7 @@ function backdrops() {
         const j = Math.floor(Math.random() * (i + 1));
         [ids[i], ids[j]] = [ids[j], ids[i]];
       }
-      shuffled = { play: ids[0], mods: ids[1], skins: ids[2], settings: ids[3] };
+      shuffled = { play: ids[0], mods: ids[1], skins: ids[2], cosmetics: ids[3], settings: ids[4] };
     }
     return shuffled;
   }
@@ -188,7 +208,7 @@ function renderBgPicker() {
   $("#bg-note").textContent = {
     pages: "Each page has its own. Pick one to use it everywhere.",
     one: "The one you picked is on every page.",
-    shuffle: "Four different ones each time the launcher opens.",
+    shuffle: "A different one on each page, mixed up each time the launcher opens.",
   }[mode];
   $("#bg-grid").replaceChildren(...BGS.map((b) => {
     const where = Object.keys(PAGES).filter((v) => used[v] === b.id);
@@ -202,23 +222,65 @@ function renderBgPicker() {
       },
     },
       h("img", { src: `img/thumb-${b.id}.jpg`, alt: "", loading: "lazy", decoding: "async" }),
+      b.clip ? h("span", { class: "live-tag" }, "Live") : null,
       mode !== "one" && where.length ? h("span", { class: "where" }, ...where.map((v) => h("span", {}, PAGES[v]))) : null,
       b.name);
   }));
 }
 
+// A live clip's video, from the launcher (cached after the first download), as a URL a <video> can play.
+const clipUrls = new Map();
+function clipUrl(clip) {
+  if (!clipUrls.has(clip)) {
+    clipUrls.set(clip, invoke("clip", { id: clip })
+      .then((bytes) => URL.createObjectURL(new Blob([bytes], { type: "video/mp4" })))
+      .catch((err) => { clipUrls.delete(clip); throw err; }));
+  }
+  return clipUrls.get(clip);
+}
+const stillMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const bgStill = (id) => (BGS.find((b) => b.id === id)?.clip ? `img/${id}.jpg` : `img/bg-${id}.jpg`);
+
 function setBackground(view) {
   const bg = $("#bg");
-  const url = `url("img/bg-${backdrops()[view] || "home"}.jpg")`;
+  const id = backdrops()[view] || "home";
+  const live = BGS.find((b) => b.id === id)?.clip;
   bg.classList.toggle("home", view === "play");
   bg.classList.toggle("dim", view !== "play");
   const layers = $$(".bg-img", bg);
-  if (layers[backdropLayer].style.backgroundImage === url) return;
+  if (layers[backdropLayer].dataset.bg === id) return;
   backdropLayer ^= 1;
-  layers[backdropLayer].style.backgroundImage = url;
-  layers[backdropLayer].classList.add("on");
-  layers[backdropLayer ^ 1].classList.remove("on");
+  const layer = layers[backdropLayer], old = layers[backdropLayer ^ 1];
+  layer.dataset.bg = id;
+  layer.classList.toggle("live", !!live);
+  layer.style.backgroundImage = `url("${bgStill(id)}")`;
+  layer.querySelector("video")?.remove();
+  if (live && !stillMotion()) {
+    // The still shows at once; the clip fades in over it once it's ready.
+    const video = document.createElement("video");
+    Object.assign(video, { muted: true, loop: true, playsInline: true, autoplay: true });
+    video.setAttribute("aria-hidden", "true");
+    video.addEventListener("playing", () => video.classList.add("on"), { once: true });
+    layer.append(video);
+    clipUrl(live).then((src) => {
+      if (layer.dataset.bg !== id || !video.isConnected) return;
+      video.src = src;
+      video.play().catch(() => {});
+    }).catch(() => {});
+  }
+  layer.classList.add("on");
+  old.classList.remove("on");
+  // The old one stops once it has faded out.
+  setTimeout(() => { if (!old.classList.contains("on")) old.querySelector("video")?.pause(); }, 1000);
 }
+
+// Nothing plays while the launcher can't be seen.
+document.addEventListener("visibilitychange", () => {
+  for (const v of $$("#bg video")) {
+    if (document.hidden) v.pause();
+    else if (v.closest(".bg-img.on")) v.play().catch(() => {});
+  }
+});
 
 // ---------------------------------------------------------------- pages
 
@@ -258,6 +320,7 @@ function show(view) {
   if (view === "play") renderPlay();
   else if (view === "mods") enterMods();
   else if (view === "skins") enterSkins();
+  else if (view === "cosmetics") enterCosmetics();
   else if (view === "settings") renderSettings();
 }
 
@@ -362,11 +425,11 @@ async function play(id) {
 }
 
 async function removeInstance(inst) {
-  const yes = await ask(`Delete ${inst.name}?`, "Its worlds, mods and settings go to the Recycle Bin. Game files shared with your other instances stay.", "Delete");
+  const yes = await ask(`Delete ${inst.name}?`, `Its worlds, mods and settings go to the ${BIN}. Game files shared with your other instances stay.`, "Delete");
   if (!yes) return;
   try {
     await invoke("delete_instance", { id: inst.id });
-    toast(`${inst.name} is in the Recycle Bin.`);
+    toast(`${inst.name} is in the ${BIN}.`);
   } catch (err) {
     fail(err);
   }
@@ -1190,7 +1253,7 @@ let saveTimer;
 function renderSettings() {
   const s = state.settings;
   if (!s) return;
-  // The slider stops 2 GB short of this PC's memory, so Windows always keeps some.
+  // The slider stops 2 GB short of this computer's memory, so the system always keeps some.
   if (state.ram) {
     $("#s-mem").max = String(Math.min(32768, Math.max(2048, Math.floor((state.ram - 2048) / 512) * 512)));
     $("#s-mem-ram").textContent = ` This PC has ${Math.round(state.ram / 1024)} GB.`;
@@ -1840,7 +1903,7 @@ async function renderFiles(box) {
     h("button", { class: "linkish", onclick: () => { ins.rel = ""; renderFiles(box); } }, insInst()?.name || "Game folder"),
     ...parts.flatMap((p, i) => [h("span", { class: "sep" }, "/"),
       h("button", { class: "linkish", onclick: () => { ins.rel = parts.slice(0, i + 1).join("/"); renderFiles(box); } }, p)]));
-  const open = h("button", { class: "btn btn-line", onclick: () => invoke("open_dir", { instance: ins.id, rel }).catch(fail) }, icon("folder"), "Open in Explorer");
+  const open = h("button", { class: "btn btn-line", onclick: () => invoke("open_dir", { instance: ins.id, rel }).catch(fail) }, icon("folder"), `Open in ${FILES}`);
   const rows = list.length
     ? h("div", { class: "ilist flist" }, ...list.map((f) => h("div", {
         class: f.dir ? "frow is-dir" : "frow",
@@ -1872,10 +1935,10 @@ async function renderWorlds(box) {
 }
 
 async function deleteWorld(w, box) {
-  if (!(await ask(`Delete ${w.id}?`, "The world goes to the Recycle Bin, so you can still get it back from there.", "Delete"))) return;
+  if (!(await ask(`Delete ${w.id}?`, `The world goes to the ${BIN}, so you can still get it back from there.`, "Delete"))) return;
   try {
     await invoke("delete_world", { instance: ins.id, id: w.id });
-    toast(`${w.id} is in the Recycle Bin.`);
+    toast(`${w.id} is in the ${BIN}.`);
   } catch (err) {
     fail(err);
   }
@@ -1924,6 +1987,124 @@ async function importPack(ev) {
   } catch (err) {
     fail(err);
   }
+}
+
+// ---------------------------------------------------------------- the Cosmetics tab
+
+// A 3D preview on the left (drag to turn it); on the right, the capes, wings and head pieces to pick from. Nothing
+// changes for other players until Save, which keeps it with the Anti-Horizon cosmetics service.
+const cos = {
+  catalog: null, saved: {}, look: {}, name: null, tab: "cape", busy: false, error: "", skin: "", slim: false, viewer: null,
+};
+const COS_TABS = [["cape", "Capes"], ["wings", "Wings"], ["head", "Hats and halos"]];
+const COS_ABOUT = {
+  accretion: "A black hole's disk, turning around your head",
+  halo: "A glowing white ring above your head",
+  angel: "White feathers that stand tall, fold and spread as you move",
+  gold: "Gold feathers, jointed like a real wing. Elytra replace them while worn",
+  void: "Dark feathers, gold tips, full of stars",
+};
+const sameLook = (a, b) => ["cape", "wings", "head"].every((k) => (a[k] || null) === (b[k] || null));
+
+async function enterCosmetics() {
+  Object.assign(cos, { busy: true, error: "" });
+  renderCosmetics();
+  const [catalog, mine, profile] = await Promise.allSettled([
+    cos.catalog ? Promise.resolve(cos.catalog) : fetch("cosmetics/catalog.json").then((r) => r.json()),
+    invoke("cosmetics_get"),
+    state.accounts.some((a) => a.selected) ? invoke("get_profile") : Promise.reject(new Error("no account")),
+  ]);
+  cos.catalog = catalog.status === "fulfilled" ? catalog.value : { cape: [], wings: [], head: [] };
+  if (mine.status === "fulfilled") {
+    cos.name = mine.value.name;
+    cos.saved = { ...mine.value.look };
+    cos.look = { ...mine.value.look };
+  } else {
+    cos.name = state.accounts.find((a) => a.selected)?.name || null;
+    cos.error = String(mine.reason);
+  }
+  if (profile.status === "fulfilled") {
+    cos.skin = profile.value.skin;
+    cos.slim = profile.value.variant === "slim";
+  } else {
+    cos.skin = Preview3D.mannequin();
+    cos.slim = false;
+  }
+  cos.busy = false;
+  renderCosmetics();
+}
+
+function cosPick(kind, id) {
+  cos.look = { ...cos.look, [kind]: id || null };
+  cos.viewer?.set(cos.skin, cos.slim, cos.look);
+  renderCosmetics(true);
+}
+
+async function saveCosmetics() {
+  if (!cos.name) return addAccount();
+  cos.busy = true;
+  cos.error = "";
+  renderCosmetics(true);
+  try {
+    cos.saved = { ...(await invoke("cosmetics_set", { look: { cape: cos.look.cape || null, wings: cos.look.wings || null, head: cos.look.head || null } })) };
+    cos.look = { ...cos.saved };
+    toast("Saved. Everyone with the Anti-Horizon client sees them on you now.");
+  } catch (err) {
+    cos.error = String(err);
+  }
+  cos.busy = false;
+  renderCosmetics(true);
+}
+
+/** `keepStage` leaves the 3D preview running instead of making a new one. */
+function renderCosmetics(keepStage) {
+  const body = $("#cos-body");
+  if (!cos.catalog) return body.replaceChildren(h("p", { class: "wait" }, h("span", { class: "spinner", "aria-hidden": "true" }), "Getting your cosmetics"));
+
+  let stage = body.querySelector(".cos-stage");
+  if (!keepStage || !stage) {
+    const canvas = h("canvas", { class: "cos-preview", width: "560", height: "880", "aria-label": "Preview: drag to turn" });
+    stage = h("div", { class: "skin-stage cos-stage" }, canvas, h("span", { class: "cos-hint" }, "Drag to turn"));
+    try {
+      cos.viewer = new Preview3D.Viewer(canvas, {
+        flows: Object.fromEntries(cos.catalog.cape.filter((c) => c.flow).map((c) => [c.id, c.flow])),
+        clips: Object.fromEntries(cos.catalog.cape.filter((c) => c.clip).map((c) => [c.id, c.clip])),
+        video: clipUrl,
+      });
+      cos.viewer.set(cos.skin, cos.slim, cos.look);
+      cos.viewer.run();
+    } catch {
+      stage.replaceChildren(empty("The 3D preview needs WebGL, which this PC's graphics driver turned off."));
+    }
+  }
+  const changed = !sameLook(cos.look, cos.saved);
+  const wearing = ["cape", "wings", "head"].map((k) => cos.catalog[k].find((c) => c.id === cos.look[k])?.name).filter(Boolean);
+  const left = h("div", { class: "skin-left" },
+    stage,
+    h("p", { class: "skin-who" }, cos.name ? h("span", {}, cos.name, h("small", {}, changed ? "Not saved yet" : "Wearing now")) : h("span", {}, "Preview", h("small", {}, "Add an account to wear them"))),
+    h("p", { class: "cos-wearing" }, wearing.length ? wearing.join(" · ") : "Nothing on"),
+    cos.error ? h("p", { class: "form-error", role: "alert" }, cos.error) : null,
+    cos.name
+      ? h("button", { class: "btn btn-gold btn-lg", disabled: !changed || cos.busy, onclick: saveCosmetics }, icon("check"), cos.busy ? "Saving" : "Save cosmetics")
+      : h("button", { class: "btn btn-gold btn-lg", onclick: addAccount }, icon("plus"), "Add account"),
+    changed && !cos.busy ? h("button", { class: "btn-text", onclick: () => { cos.look = { ...cos.saved }; cos.viewer?.set(cos.skin, cos.slim, cos.look); renderCosmetics(true); } }, "Undo changes") : null);
+
+  const tabs = h("nav", { class: "glass itabs skin-tabs", "aria-label": "Cosmetics" },
+    ...COS_TABS.map(([k, t]) => h("button", { type: "button", "aria-current": String(cos.tab === k), onclick: () => { cos.tab = k; renderCosmetics(true); } }, t)));
+  const items = cos.catalog[cos.tab] || [];
+  const card = (id, name, about, picture) => h("div", { class: (cos.look[cos.tab] || null) === id ? "cos-card is-picked" : "cos-card" },
+    h("button", { class: "cos-pick", type: "button", "aria-pressed": String((cos.look[cos.tab] || null) === id), onclick: () => cosPick(cos.tab, id) },
+      h("span", { class: `cos-pic cos-pic-${cos.tab}` }, picture, cos.catalog[cos.tab]?.find((c) => c.id === id)?.clip ? h("span", { class: "live-tag" }, "Live") : null),
+      h("strong", {}, name),
+      about ? h("small", {}, about) : null));
+  const picture = (c) => cos.tab === "cape" ? h("img", { src: `cosmetics/cape/${c.id}-face-far.png`, alt: "" })
+    : cos.tab === "wings" ? h("img", { src: `cosmetics/thumb/wings-${c.id}.png`, alt: "" })
+    : h("img", { src: `cosmetics/thumb/head-${c.id}.png`, alt: "" });
+  const grid = h("div", { class: `cos-grid cos-grid-${cos.tab}` },
+    card(null, "None", "", h("span", { class: "cos-none", "aria-hidden": "true" }, icon("close"))),
+    ...items.map((c) => card(c.id, c.name, COS_ABOUT[c.id] || "", picture(c))));
+  const note = h("p", { class: "cos-note" }, "Free. Seen by everyone who plays with the Anti-Horizon client, on any server.");
+  body.replaceChildren(left, h("div", { class: "skin-right" }, tabs, h("div", { class: "skin-pane" }, grid), note));
 }
 
 // ---------------------------------------------------------------- the Skins tab
@@ -2150,7 +2331,7 @@ async function deleteLibSkin(p, s) {
 }
 
 async function deletePack(p) {
-  if (!(await ask(`Delete ${p.name}?`, "The pack's skins go to the Recycle Bin. Skins you're wearing stay on your account.", "Delete"))) return;
+  if (!(await ask(`Delete ${p.name}?`, `The pack's skins go to the ${BIN}. Skins you're wearing stay on your account.`, "Delete"))) return;
   try {
     skin.packs = await invoke("delete_skin_pack", { pack: p.name });
   } catch (err) {

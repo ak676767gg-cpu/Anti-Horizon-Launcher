@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Anti Horizon Launcher",
+        "width": 1200,
+        "height": 760,
+        "minWidth": 980,
+        "minHeight": 620,
+        "center": true,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": { "x": 20, "y": 31 },
+        "theme": "Dark",
+        "backgroundColor": "#070e15"
+      }
+    ]
+  },
+  "bundle": {
+    "targets": ["app", "dmg"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns"],
+    "createUpdaterArtifacts": false,
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "10.15",
+      "dmg": {
+        "windowSize": { "width": 560, "height": 340 },
+        "appPosition": { "x": 150, "y": 170 },
+        "applicationFolderPosition": { "x": 410, "y": 170 }
+      }
+    }
+  }
+}

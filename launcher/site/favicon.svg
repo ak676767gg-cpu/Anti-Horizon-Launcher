@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Anti-Horizon Launcher: something escaping a black hole. A gold trail slingshots round the event horizon
+       and breaks free to the top right. The game's palette only. -->
+  <defs>
+    <radialGradient id="space" cx="44%" cy="56%" r="75%">
+      <stop offset="0" stop-color="#070e15"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+    <linearGradient id="trail" x1="96" y1="238" x2="452" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d8bc8d" stop-opacity=".25"/>
+      <stop offset=".45" stop-color="#d8bc8d"/>
+      <stop offset=".85" stop-color="#e2bf8c"/>
+      <stop offset="1" stop-color="#e7ece5"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e7ece5"/>
+      <stop offset=".5" stop-color="#e2bf8c"/>
+      <stop offset="1" stop-color="#d8bc8d"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="haze" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+    <clipPath id="tile"><rect x="8" y="8" width="496" height="496" rx="116"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect x="8" y="8" width="496" height="496" fill="url(#space)"/>
+    <g fill="#e7ece5" opacity=".55">
+      <circle cx="96" cy="118" r="2.6"/><circle cx="168" cy="72" r="1.8"/><circle cx="330" cy="150" r="2"/>
+      <circle cx="410" cy="420" r="2.2"/><circle cx="74" cy="250" r="1.6"/><circle cx="300" cy="470" r="1.6"/>
+    </g>
+    <!-- The black hole: a soft gold halo, the shadow, and a crisp photon ring. -->
+    <circle cx="226" cy="290" r="122" fill="none" stroke="#d8bc8d" stroke-width="30" opacity=".5" filter="url(#haze)"/>
+    <circle cx="226" cy="290" r="104" fill="#000"/>
+    <circle cx="226" cy="290" r="106" fill="none" stroke="url(#ring)" stroke-width="7"/>
+    <!-- The trail: thin where it starts, widest as it swings round, sharp where it breaks free. -->
+    <path d="M96 238 C80 432 330 504 404 330 C430 256 438 160 452 72 C426 156 414 250 388 318 C322 452 108 424 96 238 Z" fill="url(#trail)" filter="url(#glow)" opacity=".6"/>
+    <path d="M96 238 C80 432 330 504 404 330 C430 256 438 160 452 72 C426 156 414 250 388 318 C322 452 108 424 96 238 Z" fill="url(#trail)"/>
+    <!-- The point that escaped. -->
+    <circle cx="452" cy="72" r="26" fill="#e2bf8c" opacity=".55" filter="url(#glow)"/>
+    <circle cx="452" cy="72" r="9" fill="#e7ece5"/>
+  </g>
+  <rect x="9.5" y="9.5" width="493" height="493" rx="115" fill="none" stroke="#d8bc8d" stroke-opacity=".35" stroke-width="3"/>
+</svg>

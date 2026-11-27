@@ -168,21 +168,8 @@ fn cdata(event: &str, tag: &str) -> Option<String> {
 
 /// The local time as HH:MM:SS.
 fn clock() -> String {
-    #[cfg(windows)]
-    {
-        // SAFETY: GetLocalTime only writes the SYSTEMTIME it is given.
-        let t = unsafe {
-            let mut t: windows_sys::Win32::Foundation::SYSTEMTIME = std::mem::zeroed();
-            windows_sys::Win32::System::SystemInformation::GetLocalTime(&mut t);
-            t
-        };
-        format!("{:02}:{:02}:{:02}", t.wHour, t.wMinute, t.wSecond)
-    }
-    #[cfg(not(windows))]
-    {
-        let s = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
-        format!("{:02}:{:02}:{:02}", s / 3600 % 24, s / 60 % 60, s % 60)
-    }
+    let (h, m, s) = crate::platform::local_time();
+    format!("{h:02}:{m:02}:{s:02}")
 }
 
 #[cfg(test)]

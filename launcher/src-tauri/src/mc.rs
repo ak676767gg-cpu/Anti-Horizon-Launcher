@@ -345,34 +345,9 @@ pub fn create_instance(name: String, version: String, loader: String, loader_ver
     Ok(inst)
 }
 
-/// Into the Recycle Bin rather than gone for good: an instance holds the player's worlds.
-#[cfg(windows)]
+/// Into the Recycle Bin or the Trash rather than gone for good: an instance holds the player's worlds.
 pub(crate) fn to_recycle_bin(path: &Path) -> Result<(), String> {
-    use std::os::windows::ffi::OsStrExt;
-    use windows_sys::Win32::UI::Shell::{
-        SHFileOperationW, FOF_ALLOWUNDO, FOF_NOCONFIRMATION, FOF_NOERRORUI, FOF_SILENT, FO_DELETE, SHFILEOPSTRUCTW,
-    };
-    let mut from: Vec<u16> = path.as_os_str().encode_wide().collect();
-    from.extend([0, 0]);
-    // SAFETY: an all-zero SHFILEOPSTRUCTW is valid; `from` is double-null terminated and outlives the call.
-    let code = unsafe {
-        let mut op: SHFILEOPSTRUCTW = std::mem::zeroed();
-        op.wFunc = FO_DELETE as _;
-        op.pFrom = from.as_ptr();
-        op.fFlags = (FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT) as _;
-        let code = SHFileOperationW(&mut op);
-        if op.fAnyOperationsAborted != 0 { -1 } else { code }
-    };
-    if code == 0 {
-        Ok(())
-    } else {
-        Err(format!("Windows couldn't move the instance to the Recycle Bin (code {code})."))
-    }
-}
-
-#[cfg(not(windows))]
-pub(crate) fn to_recycle_bin(path: &Path) -> Result<(), String> {
-    std::fs::remove_dir_all(path).map_err(e)
+    crate::platform::to_bin(path)
 }
 
 #[tauri::command(async)]
@@ -458,11 +433,21 @@ fn merge(mut chain: Vec<Value>) -> Value {
     merged
 }
 
+/// This system's name in Mojang's version files (and in the natives lists of old versions).
+const OS: &str = if cfg!(target_os = "macos") {
+    "osx"
+} else if cfg!(target_os = "linux") {
+    "linux"
+} else {
+    "windows"
+};
+
 fn os_matches(os: &Value) -> bool {
     let name = match os.get("name").and_then(Value::as_str) {
-        None | Some("windows") => true,
-        Some("windows-arm64") => cfg!(target_arch = "aarch64"),
-        Some(_) => false,
+        None => true,
+        Some(n) if n == OS || (n == "macos" && OS == "osx") => true,
+        // windows-arm64, osx-arm64, linux-arm64: only on an ARM computer.
+        Some(n) => n.strip_prefix(OS).is_some_and(|rest| rest == "-arm64") && cfg!(target_arch = "aarch64"),
     };
     let arch = match os.get("arch").and_then(Value::as_str) {
         None => true,
@@ -600,7 +585,7 @@ fn libraries(v: &Value) -> Result<Vec<Lib>, String> {
         }
 
         // Natives the old way (before 1.19): a separate jar per system, unpacked next to the game.
-        if let Some(classifier) = natives.and_then(|n| n.get("windows")).and_then(Value::as_str) {
+        if let Some(classifier) = natives.and_then(|n| n.get(OS)).and_then(Value::as_str) {
             let classifier = classifier.replace("${arch}", if cfg!(target_pointer_width = "32") { "32" } else { "64" });
             let exclude = strings(lib.pointer("/extract/exclude"));
             let key = format!("{}:{classifier}", lib_key(name));
@@ -644,13 +629,20 @@ async fn asset_jobs(v: &Value, jobs: &mut Vec<Job>) -> Result<(String, Value), S
     Ok((id, index))
 }
 
-fn platform() -> &'static str {
-    if cfg!(target_arch = "aarch64") {
-        "windows-arm64"
+/// This computer in Mojang's Java listing, then the build to fall back on when there's none for it (Intel Java runs
+/// on Apple silicon through Rosetta, x64 Java on Windows on ARM).
+fn platform() -> [&'static str; 2] {
+    let arm = cfg!(target_arch = "aarch64");
+    if cfg!(target_os = "macos") {
+        [if arm { "mac-os-arm64" } else { "mac-os" }, "mac-os"]
+    } else if cfg!(target_os = "linux") {
+        [if cfg!(target_arch = "x86") { "linux-i386" } else { "linux" }, "linux"]
+    } else if arm {
+        ["windows-arm64", "windows-x64"]
     } else if cfg!(target_arch = "x86") {
-        "windows-x86"
+        ["windows-x86", "windows-x64"]
     } else {
-        "windows-x64"
+        ["windows-x64", "windows-x64"]
     }
 }
 
@@ -658,10 +650,10 @@ fn platform() -> &'static str {
 async fn java_jobs(component: &str, jobs: &mut Vec<Job>) -> Result<PathBuf, String> {
     safe_name(component)?;
     let all = cached_json(JAVA_RUNTIMES, &root().join("cache").join("java-runtimes.json")).await?;
-    let entry = [platform(), "windows-x64"]
+    let entry = platform()
         .iter()
         .find_map(|p| all.get(*p).and_then(|x| x.get(component)).and_then(|x| x.get(0)))
-        .ok_or_else(|| format!("Mojang has no Java ({component}) for this PC."))?;
+        .ok_or_else(|| format!("Mojang has no Java ({component}) for this computer."))?;
     let m = entry.get("manifest").ok_or("The Java listing has no file list.")?;
     let list = root().join("runtime").join("manifests").join(format!("{component}.json"));
     let want = opt(m, "sha1");
@@ -685,7 +677,74 @@ async fn java_jobs(component: &str, jobs: &mut Vec<Job>) -> Result<PathBuf, Stri
             _ => {}
         }
     }
-    Ok(dir.join("bin").join("javaw.exe"))
+    Ok(java_program(&files, &dir))
+}
+
+/// The java program in a Mojang Java build: bin/javaw.exe on Windows (no console window), bin/java on Linux, and
+/// inside jre.bundle on a Mac.
+fn java_program(files: &Value, dir: &Path) -> PathBuf {
+    if cfg!(windows) {
+        return dir.join("bin").join("javaw.exe");
+    }
+    files
+        .get("files")
+        .and_then(Value::as_object)
+        .and_then(|m| m.keys().filter(|k| k.as_str() == "bin/java" || k.ends_with("/bin/java")).min_by_key(|k| k.len()))
+        .and_then(|k| safe_rel(k).ok())
+        .map(|rel| dir.join(rel))
+        .unwrap_or_else(|| dir.join("bin").join("java"))
+}
+
+/// After a Mojang Java build downloads on macOS or Linux: marks its programs as runnable and makes its links, which a
+/// plain download can't carry.
+#[cfg(unix)]
+fn finish_java(component: &str) -> Result<(), String> {
+    use std::os::unix::fs::PermissionsExt;
+    let list = root().join("runtime").join("manifests").join(format!("{component}.json"));
+    let files: Value = read_json(&list).ok_or("The Java file list couldn't be read.")?;
+    let dir = root().join("runtime").join(component);
+    for (rel, f) in files.get("files").and_then(Value::as_object).into_iter().flatten() {
+        let path = dir.join(safe_rel(rel)?);
+        match f.get("type").and_then(Value::as_str) {
+            Some("file") if f.get("executable").and_then(Value::as_bool) == Some(true) => {
+                let mode = std::fs::metadata(&path).map_err(|err| format!("{}: {err}", path.display()))?.permissions().mode();
+                if mode & 0o111 != 0o111 {
+                    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(mode | 0o755)).map_err(e)?;
+                }
+            }
+            Some("link") => {
+                let target = text(f, "target");
+                if target.is_empty() || target.starts_with('/') || std::fs::symlink_metadata(&path).is_ok() {
+                    continue;
+                }
+                let Some(parent) = path.parent() else { continue };
+                // Only links that point somewhere inside this Java build.
+                if !normal(&parent.join(&target)).starts_with(&dir) {
+                    continue;
+                }
+                std::fs::create_dir_all(parent).map_err(e)?;
+                std::os::unix::fs::symlink(&target, &path).map_err(e)?;
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+/// A path with its ".." parts worked out, without looking at the disk.
+#[cfg(unix)]
+fn normal(path: &Path) -> PathBuf {
+    let mut out = PathBuf::new();
+    for c in path.components() {
+        match c {
+            std::path::Component::ParentDir => {
+                out.pop();
+            }
+            std::path::Component::CurDir => {}
+            other => out.push(other),
+        }
+    }
+    out
 }
 
 fn unpack_natives(jar: &Path, dir: &Path, exclude: &[String]) -> Result<(), String> {
@@ -756,11 +815,12 @@ async fn prepare(app: &AppHandle, id: &str, top: &str) -> Result<Prepared, Strin
     // Java: Mojang's own build for this version, unless Settings names one.
     let java_path = store::load_settings().java_path.trim().to_string();
     let java_major = merged.pointer("/javaVersion/majorVersion").and_then(Value::as_u64).unwrap_or(8);
-    let java = if java_path.is_empty() {
-        let component = merged.pointer("/javaVersion/component").and_then(Value::as_str).unwrap_or("jre-legacy").to_string();
-        java_jobs(&component, &mut jobs).await?
-    } else {
-        PathBuf::from(java_path)
+    let component = java_path
+        .is_empty()
+        .then(|| merged.pointer("/javaVersion/component").and_then(Value::as_str).unwrap_or("jre-legacy").to_string());
+    let java = match &component {
+        Some(c) => java_jobs(c, &mut jobs).await?,
+        None => PathBuf::from(java_path),
     };
 
     // The game itself.
@@ -783,6 +843,12 @@ async fn prepare(app: &AppHandle, id: &str, top: &str) -> Result<Prepared, Strin
 
     let (app2, id2) = (app.clone(), id.to_string());
     net::download_all(jobs, move |done, total| progress(&app2, &id2, "Downloading game files", done, total)).await?;
+    #[cfg(unix)]
+    if let Some(c) = &component {
+        finish_java(c)?;
+    }
+    #[cfg(not(unix))]
+    let _ = &component;
 
     let natives = instance_dir(id)?.join("natives");
     std::fs::create_dir_all(&natives).map_err(e)?;
@@ -950,13 +1016,10 @@ pub fn stop_instance(id: String) -> Result<(), String> {
         let _ = dev; // only the development copy runs a client project
         false
     };
-    let mut cmd = std::process::Command::new("taskkill");
-    cmd.args(["/PID", &pid.to_string(), "/T", "/F"]);
-    no_window(&mut cmd);
-    match cmd.status() {
-        Ok(status) if status.success() => Ok(()),
-        _ if game => Ok(()),
-        _ => Err("Windows couldn't close the game.".into()),
+    if crate::platform::kill(pid) || game {
+        Ok(())
+    } else {
+        Err("The game couldn't be closed.".into())
     }
 }
 
@@ -973,9 +1036,12 @@ pub async fn launch_instance(app: AppHandle, id: String) -> Result<(), String> {
     result
 }
 
+/// Between the entries of Java's classpath: ";" on Windows, ":" on macOS and Linux.
+const CLASSPATH_SEPARATOR: &str = if cfg!(windows) { ";" } else { ":" };
+
 /// The Java command for a prepared profile: JVM options, the main class and the game's own arguments.
 fn command(p: &Prepared, account: &crate::auth::Account, settings: &store::Settings, game: &Path) -> Result<(Vec<String>, String, Vec<String>), String> {
-    let classpath = p.classpath.iter().map(|x| p2s(x)).collect::<Vec<_>>().join(";");
+    let classpath = p.classpath.iter().map(|x| p2s(x)).collect::<Vec<_>>().join(CLASSPATH_SEPARATOR);
     let vars: HashMap<&str, String> = HashMap::from([
         ("auth_player_name", account.name.clone()),
         ("auth_uuid", account.uuid.clone()),
@@ -994,7 +1060,7 @@ fn command(p: &Prepared, account: &crate::auth::Account, settings: &store::Setti
         ("natives_directory", p2s(&p.natives)),
         ("library_directory", p2s(&root().join("libraries"))),
         ("classpath", classpath),
-        ("classpath_separator", ";".to_string()),
+        ("classpath_separator", CLASSPATH_SEPARATOR.to_string()),
         ("launcher_name", "anti-horizon-launcher".to_string()),
         ("launcher_version", env!("CARGO_PKG_VERSION").to_string()),
     ]);

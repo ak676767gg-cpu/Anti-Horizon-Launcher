@@ -344,7 +344,7 @@ public final class MenuVideo {
 	}
 
 	/** A texture that blends between pixels when scaled, so pictures and the video stay smooth at any size. */
-	private static final class Linear extends DynamicTexture {
+	static final class Linear extends DynamicTexture {
 		Linear(String name, int width, int height) {
 			super(() -> name, width, height, true);
 			this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);

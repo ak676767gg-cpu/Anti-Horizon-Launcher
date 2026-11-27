@@ -615,3 +615,34 @@ dialog.inst-dialog{width:min(1040px,calc(100vw - 48px));height:min(760px,calc(10
 .card-play .i{width:18px;height:18px;margin-left:2px}
 .card:hover .card-play,.card:focus-within .card-play{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .card-play:hover{background:var(--gold-hi);transform:translate(-50%,-50%) scale(1.08)}
+
+/* macOS draws its own close, minimise and zoom buttons at the top left (see tauri.macos.conf.json). */
+.os-mac .winctl{display:none}
+.os-mac .topbar{padding-left:94px}
+
+/* The Cosmetics tab: the Skins tab's layout, with a 3D preview and cards with pictures. */
+.cos-stage{position:relative;overflow:hidden}
+.cos-preview{width:280px;height:440px;cursor:grab;touch-action:none}
+.cos-preview:active{cursor:grabbing}
+.cos-hint{position:absolute;bottom:10px;left:0;right:0;color:var(--mute);font-size:11px;text-align:center;pointer-events:none}
+.cos-wearing{margin:-6px 0 0;color:var(--mute);font-size:12.5px;text-align:center}
+.cos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cos-pick{display:grid;justify-items:center;align-content:start;gap:6px;width:100%;height:100%;padding:14px 10px 12px;border:1px solid rgba(231,236,229,.1);border-radius:14px;background:rgba(7,14,21,.5);color:var(--soft);text-align:center;transition:border-color .2s,background .2s,transform .3s var(--out)}
+.cos-pick:hover{border-color:rgba(216,188,141,.45);background:rgba(231,236,229,.05);transform:translateY(-2px)}
+.cos-card.is-picked .cos-pick{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(216,188,141,.35)}
+.cos-card.is-picked strong{color:var(--gold)}
+.cos-pick strong{font-size:13.5px;font-weight:500}
+.cos-pick small{color:var(--mute);font-size:11.5px;line-height:1.35}
+.cos-pic{display:grid;place-items:center;height:132px}
+.cos-pic img{max-width:100%;max-height:132px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.45))}
+.cos-pic-cape img{height:128px;border-radius:3px}
+.cos-none{display:grid;place-items:center;width:64px;height:64px;border:1px dashed rgba(231,236,229,.25);border-radius:50%;color:var(--mute)}
+.cos-note{margin:0;color:var(--mute);font-size:12px}
+
+/* Live backgrounds: the clip covers the layer and fades in over its still once it's playing. */
+.bg-img video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease}
+.bg-img video.on{opacity:1}
+.bg.home .bg-img.live{background-size:cover;background-position:center}
+.live-tag{position:absolute;top:7px;right:7px;display:inline-flex;align-items:center;gap:5px;padding:1px 8px 1px 7px;border-radius:999px;background:rgba(7,14,21,.78);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:.08em;line-height:17px;text-transform:uppercase}
+.live-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral);box-shadow:0 0 6px var(--coral)}
+.cos-pic{position:relative}

@@ -31,6 +31,8 @@ public final class Config {
 	public static int menuKey = InputConstants.KEY_RSHIFT;
 	/** The Solas aurora video behind Minecraft's title screen and menus, instead of the panorama. */
 	public static boolean customMenu = true;
+	/** Show Anti-Horizon cosmetics (capes, wings, head pieces) on players. They're picked in the launcher. */
+	public static boolean cosmetics = true;
 
 	/** Where each HUD piece sits, as 0..1 across and down the space it can move in. */
 	public static final Map<String, float[]> positions = new LinkedHashMap<>();
@@ -83,6 +85,7 @@ public final class Config {
 		animations = bool(p, "animations", animations);
 		menuKey = num(p, "menuKey", menuKey);
 		customMenu = bool(p, "customMenu", customMenu);
+		cosmetics = bool(p, "cosmetics", cosmetics);
 		for (String key : p.stringPropertyNames()) {
 			try {
 				if (key.startsWith("pos.")) {
@@ -106,6 +109,7 @@ public final class Config {
 		p.setProperty("animations", String.valueOf(animations));
 		p.setProperty("menuKey", String.valueOf(menuKey));
 		p.setProperty("customMenu", String.valueOf(customMenu));
+		p.setProperty("cosmetics", String.valueOf(cosmetics));
 		positions.forEach((id, xy) -> p.setProperty("pos." + id, xy[0] + "," + xy[1]));
 		scales.forEach((id, s) -> p.setProperty("scale." + id, String.valueOf(s)));
 		try {

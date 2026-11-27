@@ -1,6 +1,6 @@
 [package]
 name = "anti-horizon-launcher"
-version = "0.2.12"
+version = "0.2.13"
 description = "Anti-Horizon Launcher: a fast Minecraft launcher with Modrinth and CurseForge mods"
 edition = "2021"
 
@@ -12,14 +12,27 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = ["custom-protocol"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# native-tls uses Windows' own TLS (SChannel) and certificate store: nothing extra to compile or ship.
-reqwest = { version = "0.12", default-features = false, features = ["json", "native-tls"] }
 tokio = { version = "1", features = ["fs", "time", "sync", "io-util"] }
 futures = "0.3"
 sha1 = "0.10"
+sha2 = "0.10"
 zip = { version = "2", default-features = false, features = ["deflate"] }
 # Signed launcher updates: downloads the new NSIS setup and runs it in passive mode.
 tauri-plugin-updater = "2"
+
+# Secure connections through the system's own TLS where it has one built in: SChannel and the certificate store on
+# Windows, Secure Transport and the Keychain's certificates on a Mac. Linux has no single TLS library every
+# distribution ships, so there it is rustls, built into the launcher, with the system's certificates.
+[target.'cfg(any(windows, target_os = "macos"))'.dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "native-tls"] }
+
+[target.'cfg(not(any(windows, target_os = "macos")))'.dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls-native-roots"] }
+
+# macOS and Linux: the Trash (Windows uses its Recycle Bin directly) and the local time.
+[target.'cfg(unix)'.dependencies]
+trash = "5"
+libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_Memory", "Win32_System_SystemInformation", "Win32_UI_Shell"] }

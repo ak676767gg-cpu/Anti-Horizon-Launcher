@@ -55,6 +55,8 @@ RULES = [
     (r"PanoramaRenderer", "Panorama"),
     (r'method = "render", at = @At\("HEAD"\), cancellable = true', 'method = "extractRenderState", at = @At("HEAD"), cancellable = true'),
     (r", int height, boolean fade, CallbackInfo ci\)", ", int height, CallbackInfo ci)"),
+    # Fabric API's name for the render-layer event.
+    (r"\bLivingEntityFeatureRendererRegistrationCallback\b", "LivingEntityRenderLayerRegistrationCallback"),
 ]
 
 
@@ -66,6 +68,8 @@ RULES_263 = [
     # 26.3 put the options screen back to two arguments, and opens links through Blaze3D.
     (r"new OptionsScreen\(this, minecraft\.options, false\)", "new OptionsScreen(this, minecraft.options)"),
     (r"Util\.getPlatform\(\)\.openUri\(", "com.mojang.blaze3d.Blaze3D.openUri("),
+    # PoseStack.mulPose(rotation) became rotate(rotation).
+    (r"\.mulPose\(Axis\.", ".rotate(Axis."),
 ]
 
 # Each build: its package, the game version it's compiled against, other versions it must also compile for, extra rules.

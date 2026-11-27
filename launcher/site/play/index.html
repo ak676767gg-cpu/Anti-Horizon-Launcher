@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Anti-Horizon</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="stylesheet" href="/home.css">
+  <style>
+    html:not(.app) body{visibility:hidden}
+    .bye{display:grid;place-items:center;min-height:100vh;padding:24px;text-align:center}
+    .bye div{max-width:46ch}
+    .bye img{width:72px;height:72px;margin-bottom:18px}
+    .bye h1{margin:0 0 14px;font:300 clamp(1.6rem,4vw,2.4rem)/1.15 "Jost",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+    .bye p{color:var(--soft);line-height:1.6}
+    .bye .btn{margin-top:18px}
+  </style>
+  <script>
+    // Only the old Anti-Horizon desktop app (which opens this address) shows the goodbye; browsers go to the launcher.
+    (function () {
+      var inApp = function () { return !!(window.pakeConfig || window.__TAURI__ || window.__TAURI_INTERNALS__); };
+      var decide = function () {
+        if (inApp()) document.documentElement.className = 'app';
+        else location.replace('/');
+      };
+      if (inApp()) document.documentElement.className = 'app';
+      else setTimeout(decide, 250);
+    })();
+  </script>
+</head>
+<body>
+  <main class="bye">
+    <div>
+      <img src="/logo.svg" alt="">
+      <h1>Thanks for playing</h1>
+      <p>This game has ended, and this app won't open it any more. You can remove the app in Windows Settings, under Apps.</p>
+      <p>Anti-Horizon now makes the Anti-Horizon Launcher, a fast launcher for Minecraft: Java Edition.</p>
+      <a class="btn btn-mint btn-lg" href="/">See the launcher</a>
+    </div>
+  </main>
+</body>
+</html>

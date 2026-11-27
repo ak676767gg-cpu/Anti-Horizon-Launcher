@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Anti-Horizon Launcher: a fast Minecraft launcher for Windows, Mac and Linux</title>
+  <meta name="description" content="A fast, free launcher for Minecraft: Java Edition in gold and space: every version, Fabric, Quilt, Forge and NeoForge, mods from Modrinth with everything they need, skins and more.">
+  <link rel="canonical" href="https://anti-horizon.com/">
+  <meta name="theme-color" content="#000000">
+  <meta name="google-site-verification" content="chO-PQZzwLyp9umNmzxJg0VnoRiniLoD-XDIb3FCXPk">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Anti-Horizon">
+  <meta property="og:title" content="Anti-Horizon Launcher: a fast Minecraft launcher for Windows, Mac and Linux">
+  <meta property="og:description" content="A fast, free launcher for Minecraft: Java Edition, in gold and space.">
+  <meta property="og:url" content="https://anti-horizon.com/">
+  <meta property="og:image" content="https://anti-horizon.com/img/launcher-preview.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/jost-variable.woff2" crossorigin>
+  <link rel="preload" as="image" fetchpriority="high" href="/img/launcher-hero.jpg">
+  <link rel="stylesheet" href="/home.css">
+  <style>
+    .hero .kicker{color:var(--gold);font-size:clamp(.8rem,1.1vw,.95rem);letter-spacing:.42em;margin-right:-.42em;text-transform:uppercase;text-shadow:0 1px 14px rgba(0,0,0,.8)}
+    .hero .mark{font-size:clamp(2.2rem,8vw,7rem)}
+    .stills .lede{max-width:52ch;margin:calc(-1 * clamp(32px,5vw,72px)) auto clamp(48px,7vw,96px);color:var(--soft);text-align:center}
+    .stills img{border:1px solid var(--line);border-radius:6px}
+    .warn{max-width:58ch;margin:-4px auto 0;color:var(--mute);font-size:.86rem;text-align:center;text-shadow:0 1px 12px rgba(0,0,0,.9)}
+    .warn b{color:var(--soft);font-weight:500}
+    .trust{max-width:1100px;margin:0 auto;padding:clamp(56px,8vw,120px) clamp(20px,5vw,56px) 0}
+    .trust h2{text-align:center}
+    .trust .lede{max-width:56ch;margin:14px auto clamp(32px,5vw,56px);color:var(--soft);text-align:center}
+    .trust ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:0;padding:0;list-style:none}
+    .trust li{padding:22px;border:1px solid var(--line);border-radius:12px;background:rgba(7,14,21,.5)}
+    .trust h3{margin:0 0 8px;color:var(--gold);font-size:1rem;font-weight:500}
+    .trust p{margin:0;color:var(--soft);font-size:.92rem}
+    .trust .more{margin-top:24px;text-align:center}
+    .foot .legal{flex-basis:100%;margin:0;font-size:.8rem}
+    .get{max-width:1100px;margin:0 auto;padding:clamp(56px,8vw,120px) clamp(20px,5vw,56px) 0;scroll-margin-top:40px}
+    .get h2{text-align:center}
+    .get .lede{max-width:56ch;margin:14px auto clamp(32px,5vw,56px);color:var(--soft);text-align:center}
+    .get ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:0;padding:0;list-style:none}
+    .get li{display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid var(--line);border-radius:12px;background:rgba(7,14,21,.5)}
+    .get li.you{border-color:rgba(216,188,141,.55);order:-1}
+    .get h3{margin:0;color:var(--gold);font-size:1.1rem;font-weight:500}
+    .get .req{margin:-6px 0 0;color:var(--mute);font-size:.86rem}
+    .get .btn{align-self:flex-start;margin:4px 0 0;padding:13px 22px;font-size:.98rem}
+    .get .alt{margin:0;color:var(--soft);font-size:.9rem}
+    .get .alt a{color:var(--gold)}
+    .get .how{margin:0;color:var(--soft);font-size:.9rem;line-height:1.55}
+    .get .how b{color:var(--bone);font-weight:500}
+    .get .more{margin:24px auto 0;max-width:62ch;color:var(--mute);font-size:.88rem;text-align:center}
+    .get .more a{color:var(--gold)}
+  </style>
+  <script>document.documentElement.classList.replace('no-js','js')</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="nav" id="nav">
+    <a class="brand" href="/"><img src="/logo.svg" width="24" height="24" alt=""><span>ANTI-HORIZON</span></a>
+    <nav aria-label="Site"><a href="#look">A look inside</a><a href="#download">Download</a><a href="#trust">Trust</a><a href="#questions">Questions</a><a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">Source code</a></nav>
+    <a class="btn btn-mint btn-sm" data-dl href="/launcher/Anti-Horizon-Launcher-Setup.exe" download>Download<span class="long">&nbsp;the launcher</span></a>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="hero" aria-labelledby="title">
+      <div class="frame">
+        <img class="shot" src="/img/launcher-hero.jpg" width="1920" height="1080" fetchpriority="high" alt="A black hole with a golden disk">
+      </div>
+      <div class="hero-in">
+        <h1 id="title"><span class="kicker">Anti-Horizon</span><span class="mark">Launcher</span><span class="line">Minecraft: Java Edition, launched fast. Every version, every mod loader and mods in one click, in gold and space.</span></h1>
+        <div class="cta">
+          <a class="btn btn-mint btn-lg" data-dl data-name href="/launcher/Anti-Horizon-Launcher-Setup.exe" download>Download for Windows</a>
+          <a class="btn btn-line btn-lg" href="#look">A look inside</a>
+        </div>
+        <p class="warn" id="warn">New apps get a warning from Windows. If it says it protected your PC, choose <b>More info</b>, then <b>Run anyway</b>. <a href="#download">Mac and Linux</a></p>
+      </div>
+      <p class="hero-foot">Free <i></i> Windows, Mac &amp; Linux <i></i> Version {{VERSION}}</p>
+    </section>
+
+    <section class="stills" id="look" aria-labelledby="look-title">
+      <h2 id="look-title">A look inside</h2>
+      <p class="lede">Everything happens in one window over a black hole: your instances, your mods, your skin and the game itself.</p>
+      <ul role="list">
+        <li><img src="/img/launcher-preview.jpg" width="1200" height="760" loading="lazy" alt="The Play page with an instance called Performance, a gold Play button and its cards"><h3>Your instances</h3><p>Each has its own Minecraft version, mod loader, worlds and mods. Hover one and press Play; the logs open with it.</p></li>
+        <li><img src="/img/launcher-instance.jpg" width="1200" height="760" loading="lazy" alt="An instance's screen: its content, filtered by kind and split into pages"><h3>Everything in one place</h3><p>Click an instance for its mods, resource packs, shaders and data packs, its files and its worlds. Share it with a friend as one file.</p></li>
+        <li><img src="/img/launcher-skins.jpg" width="1200" height="760" loading="lazy" alt="The Skins tab: a skin preview beside Minecraft's default skins"><h3>Skins</h3><p>See your skin before you wear it. Pick one of Minecraft's default skins, one from your own skin packs, or upload your own.</p></li>
+        <li><img src="/img/launcher-mods.jpg" width="1200" height="760" loading="lazy" alt="Browsing mods by category"><h3>Mods in one click</h3><p>Search Modrinth by category and sort by downloads, follows or updates. Everything a mod needs comes with it, so the game starts every time.</p></li>
+        <li><img src="/img/launcher-modpage.jpg" width="1200" height="760" loading="lazy" alt="The page for a mod, with screenshots, links and an Install button"><h3>A page for every mod</h3><p>Screenshots, the full description, its links, and whether it's needed on your side or the server's, without leaving the launcher.</p></li>
+        <li><img src="/img/launcher-installed.jpg" width="1000" height="524" loading="lazy" alt="Installed mods with their icons, versions and on and off switches"><h3>Kept up to date</h3><p>Every mod by its real name and version. Switch them on and off, and update them all at once. A stable mod only ever gets stable updates.</p></li>
+        <li><img src="/img/launcher-backgrounds.jpg" width="880" height="510" loading="lazy" alt="Eleven black hole backgrounds to choose from"><h3>Eleven black holes</h3><p>One on each page, one everywhere, or a new mix each time it opens.</p></li>
+        <li><img src="/img/launcher-update.jpg" width="560" height="540" loading="lazy" alt="A small Updating card with a gold progress bar"><h3>Updates itself</h3><p>New versions download in the background. One click on Update installs them, and the launcher is back in a moment.</p></li>
+      </ul>
+    </section>
+
+    <section class="get" id="download" aria-labelledby="get-title">
+      <h2 id="get-title">Download</h2>
+      <p class="lede">Free on Windows, Mac and Linux. Version {{VERSION}}, and it keeps itself up to date after that.</p>
+      <ul role="list">
+        <li data-os="windows">
+          <h3>Windows</h3>
+          <p class="req">Windows 10 and 11 <i aria-hidden="true">·</i> {{SIZE}} MB</p>
+          <a class="btn btn-mint" href="/launcher/Anti-Horizon-Launcher-Setup.exe" download>Download for Windows</a>
+          <p class="how">Windows warns about new apps it hasn't seen many people install. Choose <b>More info</b>, then <b>Run anyway</b>.</p>
+        </li>
+        <li data-os="mac">
+          <h3>Mac</h3>
+          <p class="req">macOS 10.15 or newer, Apple silicon and Intel <i aria-hidden="true">·</i> {{MAC_SIZE}} MB</p>
+          <a class="btn btn-mint" href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/releases/download/v{{VERSION}}/Anti-Horizon-Launcher-mac.dmg">Download for Mac</a>
+          <p class="how">Open it and drag the launcher into Applications. The first time you open it, macOS says it can't check the app: go to <b>System Settings</b>, then <b>Privacy &amp; Security</b>, and choose <b>Open Anyway</b>.</p>
+        </li>
+        <li data-os="linux">
+          <h3>Linux</h3>
+          <p class="req">64-bit, any distribution <i aria-hidden="true">·</i> {{LINUX_SIZE}} MB</p>
+          <a class="btn btn-mint" href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/releases/download/v{{VERSION}}/Anti-Horizon-Launcher-linux-x86_64.AppImage">Download the AppImage</a>
+          <p class="alt">Or a package: <a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/releases/download/v{{VERSION}}/Anti-Horizon-Launcher-linux-amd64.deb">.deb</a> for Ubuntu, Debian and Mint, <a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/releases/download/v{{VERSION}}/Anti-Horizon-Launcher-linux-x86_64.rpm">.rpm</a> for Fedora and openSUSE.</p>
+          <p class="how">For the AppImage, allow it to run as a program in its <b>Properties</b> (or <b>chmod +x</b>), then open it.</p>
+        </li>
+      </ul>
+      <p class="more">The Mac and Linux versions are built by GitHub straight from <a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">the public code</a>. Each download's fingerprint and build record are on <a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/releases/tag/v{{VERSION}}">its release page</a>.</p>
+    </section>
+
+    <section class="trust" id="trust" aria-labelledby="trust-title">
+      <h2 id="trust-title">Made to be trusted</h2>
+      <p class="lede">A launcher signs in to your Microsoft account, so you should know exactly what it does. Here's all of it.</p>
+      <ul role="list">
+        <li><h3>Your password stays with Microsoft</h3><p>You sign in on Microsoft's own page with a short code. The launcher never sees your password, and the sign-in it keeps can only be read by you: on Windows it's encrypted for your user.</p></li>
+        <li><h3>Nothing is tracked</h3><p>No analytics, no telemetry, no ads. It talks only to Microsoft, Mojang, the mod loaders, Modrinth, this site for updates and our cosmetics service.</p></li>
+        <li><h3>Signed updates</h3><p>Every update is signed, and the launcher refuses one that isn't, so nobody can slip it a fake.</p></li>
+        <li><h3>Read the code</h3><p>The launcher and the client are on GitHub for anyone to read and check. Nothing is hidden or scrambled, and GitHub builds the Mac and Linux versions from it.</p></li>
+      </ul>
+      <p class="more"><a class="btn btn-line" href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">See the code on GitHub</a></p>
+    </section>
+
+    <section class="questions" id="questions" aria-labelledby="questions-title">
+      <h2 id="questions-title">Questions</h2>
+      <div class="faq">
+        <details><summary>Is it free?</summary><p>Yes. The launcher is free, with no ads and nothing to buy. You need your own copy of Minecraft: Java Edition to play.</p></details>
+        <details><summary>Is my Microsoft account safe?</summary><p>You sign in on Microsoft's own page with a short code, so the launcher never sees your password. The sign-in it keeps can only be read by your own user on your computer (on Windows it's encrypted), and you can sign out any time. The code that does it is <a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">public on GitHub</a>.</p></details>
+        <details><summary>Why does Windows warn me when I install it?</summary><p>Windows warns about new apps it hasn't seen many people install yet. Choose <b>More info</b>, then <b>Run anyway</b>. You only see it once: after that, the launcher updates itself without it.</p></details>
+        <details><summary>Will it change my .minecraft folder?</summary><p>No. The launcher keeps its instances, worlds and mods in a folder of its own, so your normal Minecraft setup stays exactly as it is.</p></details>
+        <details><summary>Which versions and mod loaders does it support?</summary><p>Every Minecraft: Java Edition version, from the newest release back to the first alphas, with Fabric, Quilt, Forge and NeoForge.</p></details>
+        <details><summary>What's the Anti-Horizon client?</summary><p>A small Fabric mod that comes with the launcher: a Right Shift menu, twelve HUD pieces (FPS, CPS, combo, reach, armour and more), quick switches for your mods, and an aurora behind the title screen. It goes into Fabric instances on 1.21.11 and 26.1 to 26.3, and you can turn that off in Settings.</p></details>
+        <details><summary>What are cosmetics?</summary><p>Capes made from our black holes, gold or void wings, a halo, an accretion ring or a crown. Pick them in the launcher's Cosmetics tab and everyone who plays with the Anti-Horizon client sees them on you, on any server. They're free, and they only change how you look.</p></details>
+        <details><summary>Can I get mods from CurseForge?</summary><p>Not yet. Mods, resource packs, shaders and modpacks come from Modrinth, which has most of the same mods. CurseForge is coming in an update.</p></details>
+        <details><summary>Does it work on Mac or Linux?</summary><p>Yes. There's a Mac version for Apple silicon and Intel Macs (macOS 10.15 or newer), and a Linux version as an AppImage, a .deb and an .rpm. They do everything the Windows version does, and update themselves the same way. <a href="#download">Download them here</a>.</p></details>
+        <details><summary>Why does my Mac say it can't check the app?</summary><p>Apple checks apps from developers who pay for its programme; this one is free and made by one person. Open it once, then go to <b>System Settings</b>, <b>Privacy &amp; Security</b> and choose <b>Open Anyway</b>. You only do this once: updates open straight away.</p></details>
+        <details><summary>Is it an official Minecraft launcher?</summary><p>No. It's made by an independent developer. Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p></details>
+      </div>
+    </section>
+
+    <section class="end" aria-labelledby="end-title">
+      <img class="shot end-bg" src="/img/launcher-end.jpg" width="1920" height="1080" loading="lazy" alt="">
+      <div class="end-in"><h2 id="end-title">Your next world is waiting</h2><p>Free on Windows, Mac and Linux.</p>
+        <div class="cta"><a class="btn btn-mint btn-lg" data-dl data-name href="/launcher/Anti-Horizon-Launcher-Setup.exe" download>Download for Windows</a><a class="btn btn-line btn-lg" href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">See the code</a></div></div>
+    </section>
+  </main>
+  <footer class="foot">
+    <a class="brand" href="/"><img src="/logo.svg" width="22" height="22" alt=""><span>ANTI-HORIZON</span></a>
+    <nav aria-label="Pages"><a href="/">Home</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/contact/">Contact</a><a href="https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher">Source code</a></nav>
+    <p>A launcher by AK, an independent developer in Australia. © 2026.</p>
+    <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+  </footer>
+<script>
+  // The main download buttons point at this visitor's system; its card in Download comes first.
+  (function () {
+    var ua = navigator.userAgent;
+    var os = /iPhone|iPad|Android/.test(ua) ? '' : /Mac/.test(ua) ? 'mac' : /Linux|X11|CrOS/.test(ua) ? 'linux' : '';
+    if (!os) return;
+    var card = document.querySelector('.get li[data-os="' + os + '"]');
+    var main = card.querySelector('.btn');
+    card.classList.add('you');
+    var name = os === 'mac' ? 'Mac' : 'Linux';
+    document.querySelectorAll('[data-dl]').forEach(function (a) {
+      a.href = main.href;
+      a.removeAttribute('download');
+      if (a.hasAttribute('data-name')) a.textContent = 'Download for ' + name;
+    });
+    var warn = document.getElementById('warn');
+    warn.innerHTML = os === 'mac'
+      ? 'The first time you open it, go to <b>System Settings</b>, <b>Privacy &amp; Security</b> and choose <b>Open Anyway</b>. <a href="#download">Windows and Linux</a>'
+      : 'Allow the AppImage to run as a program, then open it. <a href="#download">.deb, .rpm and Windows</a>';
+  })();
+
+  // The bar turns solid once you scroll past the top.
+  (function () {
+    var bar = document.getElementById('nav');
+    var set = function () { bar.classList.toggle('solid', scrollY > 40); };
+    set();
+    addEventListener('scroll', set, { passive: true });
+  })();
+</script>
+</body>
+</html>

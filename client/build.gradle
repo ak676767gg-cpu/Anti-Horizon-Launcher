@@ -37,6 +37,10 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// The 26.x halves of the client (made by tools/build-all.py), so `runClient` finds every class the mixin configs
+	// list, as players' copies of the jar do. They're never applied on 1.21.11 (MixinGate).
+	clientRuntimeOnly files("build/port26/classes")
 }
 
 processResources {

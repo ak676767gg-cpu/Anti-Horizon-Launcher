@@ -6,7 +6,7 @@ issue:
 
 - Use **[Report a vulnerability](https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/security/advisories/new)**
   on this repository's Security tab, or
-- the contact page at <https://anti-horizon.com/play/contact.html>.
+- the contact page at <https://anti-horizon.com/contact/>.
 
 Say what you found, which version it affects, and how to reproduce it if you can. You'll get a reply within a few
 days, and a fix as soon as possible. Once it's fixed and released, you're welcome to be credited.

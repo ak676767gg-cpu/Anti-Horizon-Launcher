@@ -173,7 +173,7 @@ pub fn open_world(instance: String, id: String) -> Result<(), String> {
     Ok(())
 }
 
-/// Into the Recycle Bin, never gone for good: it's someone's world.
+/// Into the Recycle Bin or the Trash, never gone for good: it's someone's world.
 #[tauri::command(async)]
 pub fn delete_world(instance: String, id: String) -> Result<(), String> {
     let dir = game_dir(&instance)?.join("saves").join(safe_file(&id)?);
@@ -242,7 +242,7 @@ pub async fn export_mrpack(instance: String, with_config: bool) -> Result<String
 
     let name = if inst.name.trim().is_empty() { inst.id.clone() } else { inst.name.clone() };
     let safe: String = name.chars().map(|c| if c.is_ascii_alphanumeric() || c == ' ' || c == '-' { c } else { '_' }).collect();
-    let downloads = std::env::var_os("USERPROFILE").map(PathBuf::from).unwrap_or_default().join("Downloads");
+    let downloads = crate::platform::downloads();
     std::fs::create_dir_all(&downloads).map_err(e)?;
     let mut out = downloads.join(format!("{}.mrpack", safe.trim()));
     let mut n = 2;
@@ -305,7 +305,7 @@ pub async fn export_mrpack(instance: String, with_config: bool) -> Result<String
     zip.write_all(serde_json::to_string_pretty(&index).map_err(e)?.as_bytes()).map_err(e)?;
     zip.finish().map_err(e)?;
 
-    let _ = std::process::Command::new("explorer").arg(format!("/select,{}", out.display())).spawn();
+    crate::platform::reveal(&out);
     Ok(out.display().to_string())
 }
 

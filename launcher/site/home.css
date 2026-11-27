@@ -1,0 +1,184 @@
+/* Anti-Horizon front page: a title sequence. The game's own frames between widescreen bars, wide Futura-style
+   titles over them, and the climb told scene by scene. The game's palette only. */
+@font-face{font-family:"AH Sans";src:url("/fonts/inter-latin.woff2") format("woff2");font-weight:300 600;font-display:swap}
+@font-face{font-family:"AH Title";src:url("/fonts/jost-variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  color-scheme:dark;
+  --black:#000;--void:#070e15;--bone:#e7ece5;--soft:#b9c6c2;--mute:#859c9a;--gold:#d8bc8d;--mint:#b5e6ce;--line:rgba(172,200,192,.18);
+  --sans:"AH Sans","Segoe UI",system-ui,sans-serif;--title:"AH Title","AH Sans",system-ui,sans-serif;
+  --edge:clamp(16px,4.6vw,72px);--bar:clamp(44px,9svh,96px);--out:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--black);scroll-behavior:smooth;-webkit-text-size-adjust:100%;scrollbar-color:#2a3a40 var(--black)}
+body{margin:0;background:var(--black);color:var(--bone);font:400 17px/1.6 var(--sans);overflow-x:hidden}
+::selection{background:var(--mint);color:var(--void)}
+img{display:block;max-width:100%}
+h1,h2,h3,p,ul{margin:0;padding:0}
+ul{list-style:none}
+a{color:inherit;text-underline-offset:.2em}
+:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+main:focus{outline:0}
+section,#climb{scroll-margin-top:64px}
+.skip{position:fixed;left:16px;top:-60px;z-index:80;padding:10px 16px;background:var(--bone);color:var(--void);border-radius:4px}
+.skip:focus{top:12px}
+
+/* Titles: wide, light capitals, like a film's opening credits. */
+.mark,h2{font-family:var(--title);font-weight:300;text-transform:uppercase;letter-spacing:.24em;text-wrap:balance}
+h2{font-size:clamp(1.9rem,5vw,4.4rem);line-height:1.08;margin-right:-.24em}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:4px;font:500 1rem/1 var(--sans);text-decoration:none;white-space:nowrap;transition:background .2s,border-color .2s,color .2s,transform .4s var(--out)}
+.btn-sm{padding:10px 18px;font-size:.92rem}
+.btn-lg{padding:18px 34px;font-size:1.08rem}
+.btn-mint{background:var(--mint);color:var(--void);font-weight:600}
+.btn-mint:hover{background:#cdf0de}
+.btn-line{border:1px solid rgba(231,236,229,.42);color:var(--bone);background:rgba(0,0,0,.35)}
+.btn-line:hover{border-color:var(--bone);background:rgba(0,0,0,.6)}
+.btn:active{transform:translateY(1px)}
+
+/* The bar across the top sits in the letterbox until you scroll. */
+.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;gap:28px;height:64px;padding:0 var(--edge);transition:background .3s}
+.nav.solid{background:rgba(0,0,0,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:400 .95rem/1 var(--title);letter-spacing:.3em;white-space:nowrap}
+.nav nav{display:flex;gap:26px;margin-left:auto}
+.nav nav a{font-size:.92rem;color:var(--soft);text-decoration:none;padding:10px 0}
+.nav nav a:hover{color:var(--bone)}
+
+/* The opening shot: the frame between two black bars, the title and both buttons centred over it. */
+.hero{position:relative;height:100svh;min-height:560px;background:var(--black);overflow:hidden;display:grid;place-items:center}
+.frame{position:absolute;inset:var(--bar) 0;overflow:hidden}
+.frame .shot{width:100%;height:100%;object-fit:cover;transform-origin:50% 45%}
+.frame::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 62%,rgba(0,0,0,.55),transparent 70%),linear-gradient(transparent 55%,rgba(0,0,0,.5))}
+.hero-in{position:relative;z-index:2;display:grid;justify-items:center;gap:34px;padding:0 var(--edge);text-align:center;margin-top:18svh}
+.hero h1{display:grid;gap:18px;font-weight:inherit}
+.mark{font-size:clamp(1.7rem,7.2vw,6.4rem);line-height:1;letter-spacing:.3em;margin-right:-.3em;text-shadow:0 2px 40px rgba(0,0,0,.6)}
+.line{font-size:clamp(1.02rem,1.6vw,1.32rem);color:var(--bone);max-width:34ch;margin:0 auto;text-shadow:0 1px 14px rgba(0,0,0,.8)}
+.cta{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.hero-foot{position:absolute;left:0;right:0;bottom:0;height:var(--bar);display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:.86rem;letter-spacing:.06em;color:var(--mute)}
+.hero-foot i{width:3px;height:3px;border-radius:50%;background:var(--mute)}
+
+/* The climb: each scene is a frame between bars with its title card centred low. */
+.scene,.play{grid-template:minmax(0,1fr)/100%;overflow:hidden}
+.scene{position:relative;height:clamp(520px,92svh,980px);padding:var(--bar) 0;background:var(--black);display:grid}
+.scene .shot{grid-area:1/1;width:100%;height:100%;object-fit:cover;transform-origin:50% 50%}
+.scene::after{content:"";grid-area:1/1;align-self:stretch;background:linear-gradient(transparent 40%,rgba(0,0,0,.72));pointer-events:none;z-index:1}
+.card-title{grid-area:1/1;align-self:end;justify-self:center;z-index:2;display:grid;justify-items:center;gap:14px;text-align:center;padding:0 var(--edge) clamp(40px,9svh,96px)}
+.card-title p{max-width:46ch;color:var(--bone);font-size:clamp(1rem,1.4vw,1.15rem)}
+.card-title span{font-size:.86rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+
+/* Stills from inside the game. */
+.stills{padding:clamp(88px,14vw,180px) var(--edge) clamp(64px,10vw,140px);max-width:1440px;margin:0 auto}
+.stills h2{text-align:center;margin-bottom:clamp(48px,7vw,96px)}
+.stills ul{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(40px,5vw,72px) clamp(16px,2.4vw,32px)}
+.stills li{grid-column:span 6}
+.stills li:nth-child(4n+1){grid-column:1/span 7}.stills li:nth-child(4n+2){grid-column:8/span 5;align-self:end}
+.stills li:nth-child(4n+3){grid-column:1/span 5;align-self:start}.stills li:nth-child(4n){grid-column:6/span 7}
+.stills img{width:100%;height:auto;border-radius:2px;margin-bottom:18px}
+.stills h3{font:400 1.4rem/1.2 var(--title);letter-spacing:.16em;text-transform:uppercase;margin-bottom:6px}
+.stills p{color:var(--soft);max-width:44ch}
+
+/* Where to play: one more frame, three ways in. */
+.play{position:relative;padding:var(--bar) 0;display:grid;min-height:88svh}
+.play .shot{grid-area:1/1;width:100%;height:100%;object-fit:cover;filter:brightness(.42)}
+.play-in{grid-area:1/1;z-index:1;align-self:center;display:grid;gap:clamp(40px,6vw,72px);padding:48px var(--edge);text-align:center}
+.ways{display:grid;grid-template-columns:repeat(3,minmax(0,300px));justify-content:center;gap:clamp(24px,4vw,64px)}
+.way{display:grid;gap:10px;justify-items:center;text-decoration:none;padding:8px 0}
+.way b{font:400 1.25rem/1.2 var(--title);letter-spacing:.14em;text-transform:uppercase}
+.way span{color:var(--soft);font-size:.98rem}
+.way em{font-style:normal;margin-top:8px;padding:12px 22px;min-height:44px;border:1px solid rgba(231,236,229,.42);border-radius:4px;transition:background .2s,border-color .2s}
+.way:hover em{border-color:var(--bone)}
+.way.hot em{background:var(--mint);border-color:var(--mint);color:var(--void);font-weight:600}
+
+/* Questions */
+.questions{padding:clamp(88px,12vw,160px) var(--edge);max-width:880px;margin:0 auto}
+.questions h2{text-align:center;margin-bottom:clamp(40px,6vw,72px)}
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;padding:22px 0;font-size:1.08rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:10px;height:10px;margin-top:8px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(45deg);transition:transform .3s var(--out)}
+.faq details[open] summary::after{transform:rotate(-135deg)}
+.faq summary:hover{color:var(--mint)}
+.faq p{padding:0 0 24px;color:var(--soft);max-width:68ch}
+.faq a{color:var(--mint)}
+
+/* The close */
+.end{position:relative;height:100svh;min-height:560px;display:grid;place-items:center;overflow:hidden;background:var(--black)}
+.end .shot,.end video{position:absolute;left:0;top:var(--bar);width:100%;height:calc(100% - 2*var(--bar));object-fit:cover}
+.end video{opacity:0;transition:opacity 1.2s}.end video.on{opacity:1}
+.end::after{content:"";position:absolute;inset:var(--bar) 0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,0,0,.55),transparent 75%);z-index:1}
+.end-in{position:relative;z-index:2;display:grid;justify-items:center;gap:22px;text-align:center;padding:0 var(--edge)}
+.end-in p{font-size:1.15rem;margin-bottom:12px;text-shadow:0 1px 14px rgba(0,0,0,.8)}
+.end h2{text-shadow:0 2px 30px rgba(0,0,0,.6)}
+
+.foot{display:flex;flex-wrap:wrap;align-items:center;gap:20px 36px;padding:40px var(--edge) 48px;border-top:1px solid var(--line);color:var(--mute);font-size:.88rem}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+.foot nav a{text-decoration:none;padding:6px 0}.foot nav a:hover{color:var(--bone)}
+.foot p{margin-left:auto}
+
+/* Motion: the bars open, the frame pushes in and the title settles, once. Each scene's card does the same as it arrives. */
+@media (prefers-reduced-motion:no-preference){
+  .js .frame{animation:bars 1.6s var(--out) both}
+  .js .frame .shot{animation:push 16s cubic-bezier(.2,.6,.3,1) both}
+  .js .hero-in>*{animation:rise 1.4s var(--out) both}
+  .js .hero h1{animation-delay:.5s}.js .cta{animation-delay:.85s}
+  .js .scene .shot{transform:scale(1.07);transition:transform 2.4s var(--out)}
+  .js .scene .card-title>*{opacity:0;transform:translateY(14px);transition:opacity 1s var(--out),transform 1.2s var(--out)}
+  .js .scene .card-title p{transition-delay:.15s}.js .scene .card-title span{transition-delay:.3s}
+  .js .scene.in .shot{transform:none}
+  .js .scene.in .card-title>*{opacity:1;transform:none}
+}
+@keyframes bars{from{inset:50svh 0}to{inset:var(--bar) 0}}
+@keyframes push{from{transform:scale(1.14)}to{transform:scale(1)}}
+@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+
+@media (max-width:900px){
+  .nav nav{display:none}.nav .btn{margin-left:auto}
+  .stills ul{grid-template-columns:1fr;gap:48px}
+  .stills li,.stills li:nth-child(n){grid-column:auto}
+  .ways{grid-template-columns:minmax(0,340px)}
+  .foot p{margin-left:0}
+}
+@media (max-width:600px){
+  /* Phones show each scene's whole frame, with its title card underneath instead of cropping the shot. */
+  .scene{height:auto;grid-template:auto auto/100%;padding:clamp(28px,6vw,48px) 0 clamp(40px,10vw,64px)}
+  .scene .shot{grid-area:1/1;height:auto;aspect-ratio:16/9}
+  .scene::after{display:none}
+  .card-title{grid-area:2/1;padding:22px var(--edge) 0}
+}
+@media (max-width:520px){
+  :root{--bar:52px}
+  .hero-in{margin-top:12svh;gap:28px}
+  .cta{flex-direction:column;align-items:stretch;width:100%;max-width:320px}
+  .hero-foot{font-size:.8rem;gap:7px;letter-spacing:0}
+  .hero-foot .opt,.hero-foot .opt+i{display:none}
+  .brand span{letter-spacing:.22em}
+}
+@media (max-width:520px){.nav .long{display:none}}
+
+/* A first visit asks where to: the game (this page) or the launcher. A card of navy glass over the page, blurred. */
+.where{width:min(880px,calc(100vw - 2*var(--edge)));max-width:none;max-height:calc(100svh - 32px);margin:auto;padding:0;overflow:auto;border:1px solid rgba(231,236,229,.16);border-radius:14px;background:rgba(7,14,21,.82);color:var(--bone);box-shadow:0 40px 120px rgba(0,0,0,.7);-webkit-backdrop-filter:blur(24px) saturate(140%);backdrop-filter:blur(24px) saturate(140%);animation:where-in .55s var(--out)}
+.where::backdrop{background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:where-fade .4s ease}
+.where.out{animation:where-out .26s ease forwards}
+.where.out::backdrop{animation:where-fade-out .26s ease forwards}
+.where-in{display:grid;gap:clamp(18px,3vw,30px);padding:clamp(24px,4vw,44px);text-align:center}
+.where-kicker{margin:0;color:var(--gold);font-size:.8rem;letter-spacing:.32em;text-transform:uppercase}
+.where h2{margin:-6px -.24em 0 0;font-size:clamp(1.6rem,4vw,2.8rem)}
+.where-ways{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2.4vw,24px)}
+.where-way{display:grid;align-content:start;justify-items:center;gap:8px;padding:0 0 22px;overflow:hidden;border:1px solid rgba(231,236,229,.14);border-radius:12px;background:rgba(231,236,229,.04);color:inherit;font:inherit;text-decoration:none;cursor:pointer;transition:border-color .25s,background .25s,transform .4s var(--out)}
+.where-way:hover,.where-way:focus-visible{border-color:rgba(216,188,141,.6);background:rgba(231,236,229,.07);transform:translateY(-3px)}
+.where-way:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+.where-way img{width:100%;height:auto;aspect-ratio:16/9;margin-bottom:10px;object-fit:cover;transition:transform .7s var(--out)}
+.where-way:hover img{transform:scale(1.04)}
+.where-way b{font:400 1.2rem/1.2 var(--title);letter-spacing:.16em;text-transform:uppercase}
+.where-way span{max-width:34ch;padding:0 18px;color:var(--soft);font-size:.95rem;line-height:1.5}
+.where-way em{margin-top:8px;padding:11px 22px;min-height:44px;box-sizing:border-box;border:1px solid rgba(231,236,229,.42);border-radius:4px;font-style:normal;font-size:.95rem;transition:background .2s,border-color .2s,color .2s}
+.where-way:hover em{border-color:var(--bone)}
+.where-way.primary em{background:var(--mint);border-color:var(--mint);color:var(--void);font-weight:600}
+.where-way.primary:hover em{background:#cdf0de}
+@media (max-width:640px){.where-ways{grid-template-columns:1fr}.where-way img{aspect-ratio:2.4/1}.where-way{padding-bottom:18px}}
+@keyframes where-in{from{opacity:0;transform:translateY(14px) scale(.98)}}
+@keyframes where-out{to{opacity:0;transform:translateY(8px) scale(.985)}}
+@keyframes where-fade{from{opacity:0}}
+@keyframes where-fade-out{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.where,.where::backdrop,.where.out,.where.out::backdrop,.where-way,.where-way img{animation:none;transition:none}}

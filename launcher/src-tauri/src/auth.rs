@@ -1,5 +1,6 @@
 // Microsoft sign-in for Minecraft: a device code (sign in from any browser), then Xbox Live, XSTS and Minecraft's
-// own services. Tokens are stored encrypted with Windows DPAPI, so only this Windows user can read them.
+// own services. On Windows the tokens are stored encrypted with DPAPI, so only this Windows user can read them; on
+// macOS and Linux the account file can only be opened by this user (like the file Minecraft's own launcher keeps).
 use crate::net::client;
 use crate::store::{e, root, text};
 use serde::{Deserialize, Serialize};
@@ -78,6 +79,7 @@ mod sealed {
     }
 }
 
+// The account file itself is created readable by this user only (see save).
 #[cfg(not(windows))]
 mod sealed {
     pub fn seal(data: &[u8]) -> Option<Vec<u8>> {
@@ -104,7 +106,12 @@ fn save(book: &Book) -> Result<(), String> {
     let plain = serde_json::to_vec(book).map_err(e)?;
     let sealed = sealed::seal(&plain).ok_or("Windows couldn't encrypt the account file.")?;
     let tmp = book_path().with_extension("tmp");
-    std::fs::write(&tmp, sealed).map_err(e)?;
+    let _ = std::fs::remove_file(&tmp);
+    let mut file = std::fs::OpenOptions::new();
+    file.write(true).create_new(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut file, 0o600);
+    file.open(&tmp).and_then(|mut f| std::io::Write::write_all(&mut f, &sealed)).map_err(e)?;
     std::fs::rename(&tmp, book_path()).map_err(e)
 }
 

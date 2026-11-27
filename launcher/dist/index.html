@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anti Horizon Launcher</title>
 <link rel="stylesheet" href="styles.css">
+<script src="preview3d.js" defer></script>
 <script src="app.js" defer></script>
 </head>
 <body class="booting">
@@ -17,6 +18,7 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3.5 3 8l9 4.5L21 8z"/><path d="m3 12 9 4.5 9-4.5M3 16l9 4.5 9-4.5"/></symbol>
     <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 2.1 5.9 6.5 6.5-4.4.6-5.9 2.1-6.5 6.5-.6-4.4-2.1-5.9-6.5-6.5 4.4-.6 5.9-2.1 6.5-6.5z"/><path d="M18.5 15.5c.3 1.9.9 2.5 2.8 2.8-1.9.3-2.5.9-2.8 2.8-.3-1.9-.9-2.5-2.8-2.8 1.9-.3 2.5-.9 2.8-2.8z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.6 4.2-5.4 7.5-5.4s6.1 1.8 7.5 5.4"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
     <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4l2 2.5h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
@@ -71,6 +73,7 @@
     <button class="nav-item" data-view="play" aria-current="page"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg>Play</button>
     <button class="nav-item" data-view="mods"><svg class="i" aria-hidden="true"><use href="#i-cube"/></svg>Mods</button>
     <button class="nav-item" data-view="skins"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg>Skins</button>
+    <button class="nav-item" data-view="cosmetics" hidden><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg>Cosmetics</button>
     <button class="nav-item" data-view="settings"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Settings</button>
   </nav>
   <div class="top-right">
@@ -157,6 +160,15 @@
     <input type="file" id="skin-pack-file" accept=".zip" hidden>
   </section>
 
+  <section class="view" id="view-cosmetics" hidden>
+    <header class="view-head">
+      <p class="eyebrow">Anti Horizon</p>
+      <h2 class="h2">Cosmetics</h2>
+      <p class="intro-text">Capes, wings and halos for the Anti-Horizon client: everyone who plays with it sees yours, on any server.</p>
+    </header>
+    <div class="skin-page glass cos-page" id="cos-body"></div>
+  </section>
+
   <section class="view" id="view-settings" hidden>
     <header class="view-head">
       <p class="eyebrow">Launcher</p>
@@ -167,7 +179,7 @@
       <section class="group">
         <h3>Background</h3>
         <div class="setting">
-          <div><span class="label">Black holes from the game</span><p id="bg-note"></p></div>
+          <div><span class="label">Live clips and black holes from the game</span><p id="bg-note"></p></div>
           <div class="seg glass seg-wide" id="bg-mode" role="group" aria-label="Background">
             <button type="button" data-m="pages" aria-pressed="true">Per page</button>
             <button type="button" data-m="one" aria-pressed="false">One for all</button>

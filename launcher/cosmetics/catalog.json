@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "cape": [
+    {
+      "id": "crimson",
+      "name": "Crimson",
+      "flow": {
+        "x": 0.3771,
+        "y": 0.4715,
+        "hole": 0.1489,
+        "outer": 0.7581,
+        "tilt": 0,
+        "ratio": 0.85,
+        "spin": 1,
+        "mix": 1.0
+      }
+    },
+    {
+      "id": "violet",
+      "name": "Violet",
+      "flow": {
+        "x": 0.4433,
+        "y": 0.4713,
+        "hole": 0.1485,
+        "outer": 0.7561,
+        "tilt": 0,
+        "ratio": 0.8,
+        "spin": 1,
+        "mix": 1.0
+      }
+    },
+    {
+      "id": "clip-galactic-core",
+      "name": "Galactic-core black hole",
+      "clip": {
+        "file": "cape-galactic-core.ahv",
+        "size": 6202290,
+        "sha256": "7189de7cb75a48da321569cce7c8bb414b9ad3c7fa9b1f393cc065091a129b1c",
+        "frames": 360,
+        "fps": 24,
+        "video": "galactic-core",
+        "crop": [
+          0.3239,
+          0,
+          0.6754,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-emission-nebula",
+      "name": "Emission nebula",
+      "clip": {
+        "file": "cape-emission-nebula.ahv",
+        "size": 3768782,
+        "sha256": "d155272bb861d9e815a0825f06f2946c7fefd990bc022dee1d204e306992e4fa",
+        "frames": 360,
+        "fps": 24,
+        "video": "emission-nebula",
+        "crop": [
+          0.3242,
+          0,
+          0.6758,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-stellar-black-hole",
+      "name": "Stellar-origin black hole",
+      "clip": {
+        "file": "cape-stellar-black-hole.ahv",
+        "size": 4583424,
+        "sha256": "d48582927bf58c2875a939c5f2df694dbf40c6b51ada127312034ea64e16cdeb",
+        "frames": 360,
+        "fps": 24,
+        "video": "stellar-black-hole",
+        "crop": [
+          0.3187,
+          0,
+          0.6703,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-interstallar",
+      "name": "The Interstallar",
+      "clip": {
+        "file": "cape-interstallar.ahv",
+        "size": 4636105,
+        "sha256": "734329bf11eda99eb6d38b8f74025daf8581a9b95c48a0a123792d8f13120c50",
+        "frames": 360,
+        "fps": 24,
+        "video": "interstallar",
+        "crop": [
+          0.3207,
+          0,
+          0.6722,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-molecular-cloud",
+      "name": "Molecular cloud",
+      "clip": {
+        "file": "cape-molecular-cloud.ahv",
+        "size": 2012943,
+        "sha256": "363b5fcc8e19b019c04ce2ecf63d99fb968d985e189e2ee5b684f5a077b24bb9",
+        "frames": 360,
+        "fps": 24,
+        "video": "molecular-cloud",
+        "crop": [
+          0.5054,
+          0,
+          0.8569,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-massive-black-hole",
+      "name": "Massive black hole",
+      "clip": {
+        "file": "cape-massive-black-hole.ahv",
+        "size": 4380083,
+        "sha256": "0189c1d94d44f0d8b5ae9ac59c6f5f9190e5bbb22acca43703364373ed5dab22",
+        "frames": 360,
+        "fps": 24,
+        "video": "massive-black-hole",
+        "crop": [
+          0.3198,
+          0,
+          0.6713,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-singularity",
+      "name": "Singularity",
+      "clip": {
+        "file": "cape-singularity.ahv",
+        "size": 3384447,
+        "sha256": "46b603493553a254c3d6905c057b3a204261c503b577aeb878a2ff1153501bd9",
+        "frames": 360,
+        "fps": 24,
+        "video": "singularity",
+        "crop": [
+          0.3276,
+          0,
+          0.6792,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-galactic-nebula",
+      "name": "Galactic nebula",
+      "clip": {
+        "file": "cape-galactic-nebula.ahv",
+        "size": 1892972,
+        "sha256": "8287fbf5340c68b8fbf45febdc370fe5cd532d4ac22cf0c7aecb9119a0ddaa6d",
+        "frames": 360,
+        "fps": 24,
+        "video": "galactic-nebula",
+        "crop": [
+          0.6413,
+          0,
+          0.9928,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-intermediate-black-hole",
+      "name": "Intermediate-mass black hole",
+      "clip": {
+        "file": "cape-intermediate-black-hole.ahv",
+        "size": 5401714,
+        "sha256": "0f65620a7b4c65a27ff114456e89f0a31331e9790a095cf05e3f4193401fc012",
+        "frames": 360,
+        "fps": 24,
+        "video": "intermediate-black-hole",
+        "crop": [
+          0.3244,
+          0,
+          0.6759,
+          1
+        ]
+      }
+    },
+    {
+      "id": "clip-ultramassive-black-hole",
+      "name": "Ultramassive black hole",
+      "clip": {
+        "file": "cape-ultramassive-black-hole.ahv",
+        "size": 4474602,
+        "sha256": "7cdf629d83d09d15c8b7804b8895a63db275b949b9d6c0f534aa6136cf124193",
+        "frames": 360,
+        "fps": 24,
+        "video": "ultramassive-black-hole",
+        "crop": [
+          0.3261,
+          0,
+          0.6776,
+          1
+        ]
+      }
+    }
+  ],
+  "wings": [
+    {
+      "id": "angel",
+      "name": "Angel Wings"
+    },
+    {
+      "id": "gold",
+      "name": "Gold Wings"
+    },
+    {
+      "id": "void",
+      "name": "Void Wings"
+    }
+  ],
+  "head": [
+    {
+      "id": "halo",
+      "name": "Halo"
+    },
+    {
+      "id": "accretion",
+      "name": "Accretion Ring"
+    }
+  ]
+}

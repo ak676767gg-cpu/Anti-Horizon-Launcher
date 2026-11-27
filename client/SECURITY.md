@@ -20,4 +20,5 @@ Copies from anywhere else may have been changed, so please report them through t
 ## What the client can access
 
 See [Why you can trust it](README.md#why-you-can-trust-it) in the README: it never touches your login or tokens, makes
-one download (the menu background, fingerprint-checked) and sends nothing.
+one download (the menu background, fingerprint-checked), and to show cosmetics it sends only the player IDs of the
+players around you to Anti-Horizon's cosmetics service.
