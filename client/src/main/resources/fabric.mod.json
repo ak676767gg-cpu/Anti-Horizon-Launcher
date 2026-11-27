@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "antihorizon",
+	"version": "${version}",
+	"name": "Anti-Horizon Client",
+	"description": "The Anti-Horizon client: an aurora title screen, a Right Shift menu and a gold HUD.",
+	"authors": [
+		"AK"
+	],
+	"contact": {
+		"homepage": "https://anti-horizon.com/",
+		"sources": "https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/tree/main/client",
+		"issues": "https://github.com/ak676767gg-cpu/Anti-Horizon-Launcher/issues"
+	},
+	"license": "PolyForm-Strict-1.0.0",
+	"icon": "assets/antihorizon/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.antihorizon.boot.Boot"
+		]
+	},
+	"mixins": [
+		{
+			"config": "antihorizon.client.mixins.json",
+			"environment": "client"
+		},
+		{
+			"config": "antihorizon.v26.mixins.json",
+			"environment": "client"
+		},
+		{
+			"config": "antihorizon.v263.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": [">=1.21.11 <1.22", ">=26.1 <26.4"],
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

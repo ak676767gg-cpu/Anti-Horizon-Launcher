@@ -1,0 +1,617 @@
+/* Anti-Horizon Launcher: a black hole from the game behind every section, everything centred, and a floating
+   frosted-glass bar for the sections. The game's palette and type only. */
+@font-face{font-family:"AH Sans";src:url("fonts/inter-latin.woff2") format("woff2");font-weight:300 600;font-display:swap}
+@font-face{font-family:"AH Title";src:url("fonts/jost-variable.woff2") format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  color-scheme:dark;
+  --black:#000;--void:#070e15;--bone:#e7ece5;--soft:#b9c6c2;--mute:#859c9a;
+  --gold:#d8bc8d;--gold-hi:#e2bf8c;--mint:#b5e6ce;--coral:#e3a08b;
+  --line:rgba(172,200,192,.16);--glass:rgba(231,236,229,.035);--edge:rgba(231,236,229,.14);
+  --sans:"AH Sans","Segoe UI",system-ui,sans-serif;--title:"AH Title","AH Sans",system-ui,sans-serif;
+  --out:cubic-bezier(.16,1,.3,1);--pad:clamp(24px,3.4vw,48px);--bar:62px;--foot:30px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--void);color:var(--bone);font:400 14px/1.5 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;user-select:none;cursor:default}
+input,select{user-select:text}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:default}
+h1,h2,h3,p{margin:0;font-size:inherit;font-weight:inherit}
+img{display:block}
+[hidden]{display:none!important}
+::selection{background:var(--mint);color:var(--void)}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:10px;background:rgba(172,200,192,.2) padding-box}
+::-webkit-scrollbar-thumb:hover{background-color:rgba(216,188,141,.45)}
+
+/* Frosted glass: panels the black hole shows through, softly. */
+/* Glass the way Apple draws it: a light frosted tint over a strongly blurred, brightened view of what's behind,
+   a bright edge where light catches the top, a darker one along the bottom, and a soft drop shadow. */
+.glass{border:1px solid rgba(231,236,229,.16);background:linear-gradient(180deg,rgba(231,236,229,.13),rgba(231,236,229,.035));box-shadow:inset 0 1px 0 rgba(231,236,229,.38),inset 0 -1px 0 rgba(0,0,0,.28),inset 0 0 18px rgba(231,236,229,.04),0 10px 34px rgba(0,0,0,.38);-webkit-backdrop-filter:blur(16px) saturate(185%) brightness(1.12);backdrop-filter:blur(16px) saturate(185%) brightness(1.12)}
+
+/* The black holes. Each section has its own; two layers crossfade between them. */
+.bg{position:fixed;inset:0;z-index:0;background:var(--void)}
+.bg-img{position:absolute;inset:0;background:center/cover no-repeat;opacity:0;transition:opacity .8s ease,filter .8s ease}
+.bg-img.on{opacity:1}
+.bg::after{content:"";position:absolute;inset:0;background:radial-gradient(130% 100% at 50% 36%,transparent 42%,rgba(0,0,0,.7)),linear-gradient(180deg,rgba(0,0,0,.35),transparent 16%,transparent 58%,rgba(7,14,21,.92))}
+/* Home: the hole hangs in the upper half like a film poster, with the title beneath it. */
+.bg.home .bg-img{background-size:max(100%,200vh) auto;background-position:center 90%}
+/* Every other section: the same idea, dimmed so lists stay easy to read. */
+.bg.dim .bg-img{filter:brightness(.36) saturate(.9)}
+
+/* The bar along the top: brand left, the sections in a glass pill in the middle, account and window right.
+   Its empty space drags the window. */
+.topbar{position:fixed;top:0;right:0;left:0;z-index:30;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--bar);padding:0 14px 0 18px}
+.brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.brand *{pointer-events:none}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand b{display:block;font:400 12px/1.2 var(--title);letter-spacing:.28em;text-transform:uppercase;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+.brand span{display:block;margin-top:3px;color:var(--gold);font-size:9.5px;letter-spacing:.34em;text-transform:uppercase}
+/* The section bar: the same glass, and the view behind it bent slightly as if through a lens. */
+.tabs-nav{position:relative;isolation:isolate;display:flex;gap:2px;overflow:hidden;padding:5px;border-radius:999px}
+.tabs-nav{-webkit-backdrop-filter:url(#refract) blur(14px) saturate(190%) brightness(1.15);backdrop-filter:url(#refract) blur(14px) saturate(190%) brightness(1.15)}
+/* A soft highlight that follows the cursor across the glass. app.js sets --mx and --my. */
+.tabs-nav::before{content:"";position:absolute;inset:0;z-index:-2;border-radius:inherit;background:radial-gradient(130px 70px at var(--mx,50%) var(--my,0%),rgba(231,236,229,.2),transparent 70%);opacity:0;transition:opacity .35s}
+.tabs-nav:hover::before{opacity:1}
+/* A sheen of light that sweeps across when the section changes. */
+.tabs-nav::after{content:"";position:absolute;top:0;bottom:0;left:-40%;z-index:2;width:34%;background:linear-gradient(100deg,transparent,rgba(231,236,229,.16) 45%,rgba(231,236,229,.26) 50%,rgba(231,236,229,.16) 55%,transparent);transform:translateX(-120%) skewX(-12deg);pointer-events:none}
+.tabs-nav.sheen::after{animation:sheen .9s cubic-bezier(.3,.6,.3,1)}
+@keyframes sheen{from{transform:translateX(0) skewX(-12deg)}to{transform:translateX(520%) skewX(-12deg)}}
+/* The lens: a brighter piece of glass under the current section. It slides to the next one with a springy
+   overshoot and squashes as it moves, like a drop of liquid. */
+.tab-lens{position:absolute;top:5px;left:0;z-index:-1;width:var(--w,0);height:36px;border-radius:999px;background:linear-gradient(180deg,rgba(231,236,229,.28),rgba(231,236,229,.08));box-shadow:inset 0 1px 0 rgba(231,236,229,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 4px 16px rgba(0,0,0,.35);transform:translateX(var(--x,0));transition:transform .6s cubic-bezier(.34,1.42,.5,1),width .6s cubic-bezier(.34,1.42,.5,1)}
+.tab-lens.moving{animation:squash .6s ease}
+@keyframes squash{35%{scale:1.14 .82}70%{scale:.97 1.04}}
+.nav-item{position:relative;display:flex;align-items:center;gap:8px;height:36px;padding:0 17px;border:0;border-radius:999px;background:none;color:var(--soft);font-size:13.5px;font-weight:500;transition:color .3s,transform .25s var(--out)}
+.nav-item .i{width:16px;height:16px;transition:color .3s,transform .4s var(--out)}
+.nav-item:hover{color:var(--bone)}
+.nav-item:hover .i{transform:translateY(-1px)}
+.nav-item:active{transform:scale(.95)}
+.nav-item[aria-current="page"]{color:var(--bone)}
+.nav-item[aria-current="page"] .i{color:var(--gold)}
+/* The account chip and window buttons catch the light too. */
+.who,.wc{transition:border-color .2s,background .2s,color .2s,transform .25s var(--out)}
+.who:active,.wc:active{transform:scale(.94)}
+.top-right{position:relative;display:flex;align-items:center;gap:10px;justify-self:end}
+.who{display:flex;align-items:center;gap:9px;height:40px;padding:0 14px 0 5px;border-radius:999px;text-align:left;transition:border-color .2s}
+.who:hover{border-color:rgba(216,188,141,.45)}
+.who-text{display:grid;min-width:0;max-width:150px}
+.who-text strong{overflow:hidden;font-size:12.5px;font-weight:500;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+.who-text span{color:var(--mute);font-size:10.5px;line-height:1.25}
+.ring{display:grid;flex:none;place-items:center;width:42px;height:42px;border:1.5px solid var(--gold);border-radius:50%;box-shadow:0 0 0 4px rgba(216,188,141,.07);color:var(--gold);font:400 17px/1 var(--title)}
+.ring-sm{width:30px;height:30px;box-shadow:none;font-size:12px}
+.winctl{display:flex;gap:6px}
+.wc{display:grid;place-items:center;width:30px;height:30px;padding:0;border-radius:50%;color:var(--soft);transition:background .2s,color .2s,border-color .2s}
+.wc.glass{box-shadow:inset 0 1px 0 rgba(231,236,229,.1)}
+.wc .i{width:13px;height:13px;stroke-width:1.5}
+.wc:hover{background:rgba(231,236,229,.16);color:var(--bone)}
+.wc-close:hover{border-color:var(--coral);background:var(--coral);color:var(--void)}
+
+/* Pages scroll between the bar and the status line, fading out at both edges instead of being cut. */
+main{position:fixed;top:var(--bar);right:0;bottom:var(--foot);left:0;z-index:1;overflow-x:hidden;overflow-y:auto;-webkit-mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 14px),transparent)}
+.view{min-height:100%;padding:26px var(--pad) 40px;animation:rise .45s var(--out)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.32em;text-transform:uppercase;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+.lede{color:var(--soft);font-size:14px;text-shadow:0 1px 14px rgba(0,0,0,.75)}
+.h2{margin-right:-.24em;font:300 34px/1.1 var(--title);letter-spacing:.24em;text-transform:uppercase;text-shadow:0 2px 24px rgba(0,0,0,.6)}
+.h3{color:var(--soft);font:400 11px var(--title);letter-spacing:.32em;text-transform:uppercase}
+.count{color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.view-head{display:grid;justify-items:center;gap:10px;max-width:760px;margin:4px auto 26px;text-align:center}
+.intro-text{max-width:640px;color:var(--soft);text-shadow:0 1px 14px rgba(0,0,0,.75)}
+.saved{min-height:1.2em;color:var(--mint);font-size:12.5px}
+
+/* Home: centred under the black hole. */
+.view-home{display:flex;flex-direction:column;padding-top:0;padding-bottom:22px}
+.home{display:grid;flex:1;align-content:end;justify-items:center;text-align:center}
+.hero{position:relative;isolation:isolate;display:grid;justify-items:center;gap:10px;margin-bottom:30px}
+/* A soft shade behind the title so it reads over the bright disk. closest-side means it has faded to nothing
+   before it reaches its own edges, so no box ever shows. */
+.hero::before{content:"";position:absolute;inset:-70px -220px -40px;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.58),rgba(0,0,0,.34) 55%,transparent);pointer-events:none}
+.title{max-width:22ch;margin-right:-.2em;font:300 clamp(34px,5vw,64px)/1.05 var(--title);letter-spacing:.2em;text-transform:uppercase;text-wrap:balance;overflow-wrap:anywhere;text-shadow:0 2px 28px rgba(0,0,0,.7)}
+.hero .lede{max-width:52ch}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:16px}
+.hero-actions .btn{height:56px}
+.hero-actions .btn-icon{width:56px}
+.shelf-head{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:12px}
+.shelf{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:1100px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:40px;padding:0 18px;border:1px solid transparent;border-radius:10px;background:none;font-size:13.5px;font-weight:500;white-space:nowrap;transition:background .2s,border-color .2s,color .2s,box-shadow .3s,transform .4s var(--out)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.55}
+.btn-gold{background:var(--gold);color:var(--void);font-weight:600}
+.btn-gold:hover:not(:disabled){background:var(--gold-hi);box-shadow:0 10px 34px -8px rgba(216,188,141,.7)}
+.btn-line{border-color:rgba(231,236,229,.22);background:rgba(7,14,21,.5);color:var(--bone)}
+.btn-line:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.btn-danger{border-color:rgba(227,160,139,.55);background:rgba(227,160,139,.06);color:var(--coral)}
+.btn-danger:hover{background:rgba(227,160,139,.14)}
+.btn-xl{padding:0 42px 0 46px;border-radius:12px;font:500 14px/1 var(--title);letter-spacing:.34em;text-transform:uppercase}
+.btn-xl .i{width:15px;height:15px}
+.btn-sm{height:32px;padding:0 14px;border-radius:8px;font-size:12.5px}
+.btn-icon{width:40px;padding:0}
+.btn-running{border-color:rgba(181,230,206,.45);background:rgba(181,230,206,.1);color:var(--mint)}
+.btn-running:disabled{opacity:1}
+.btn-text{padding:0;border:0;background:none;color:var(--gold);font-weight:500;white-space:nowrap}
+.i{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.i-sm{width:14px;height:14px}
+.linkish{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}
+.linkish:hover{color:var(--gold)}
+p .linkish{color:var(--gold);text-decoration:underline;text-underline-offset:.2em}
+
+/* Instance cards: glass, each with its world from the game. */
+.card{position:relative;display:flex;flex-direction:column;width:212px;overflow:hidden;border:1px solid var(--edge);border-radius:12px;background:rgba(7,14,21,.5);text-align:left;cursor:pointer;-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);transition:border-color .2s,transform .35s var(--out)}
+.card:hover{border-color:rgba(216,188,141,.45);transform:translateY(-3px)}
+.card.is-selected{border-color:rgba(216,188,141,.8);box-shadow:inset 0 0 0 1px rgba(216,188,141,.3)}
+.card-art{position:relative;flex:none;height:78px;background:center/cover no-repeat;transition:transform .8s var(--out)}
+.card-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(7,14,21,.9))}
+.card:hover .card-art{transform:scale(1.05)}
+.card-top{position:absolute;top:8px;right:10px;left:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-top .tag,.card-top .live{background:rgba(7,14,21,.72)}
+.card-top .live{padding:2px 8px;border-radius:3px}
+.card-body{display:flex;flex:1;flex-direction:column;gap:2px;padding:10px 14px 12px}
+.card-name{overflow:hidden;font-size:14.5px;font-weight:500;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+.card-meta{color:var(--soft);font-size:12px}
+.card-foot{overflow:hidden;margin-top:auto;padding-top:4px;color:var(--mute);font-size:11.5px;text-overflow:ellipsis;white-space:nowrap}
+.card-tools{position:absolute;right:6px;bottom:6px;display:flex;gap:2px;padding:2px;border-radius:10px;background:rgba(7,14,21,.9);box-shadow:0 0 0 1px rgba(231,236,229,.08);opacity:0;transition:opacity .2s}
+.card:hover .card-tools,.card:focus-within .card-tools{opacity:1}
+.card-new{flex-direction:row;align-items:center;justify-content:center;gap:10px;min-height:150px;border-style:dashed;color:var(--soft);font-size:13.5px}
+.card-new:hover{color:var(--gold)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border:1px solid rgba(216,188,141,.4);border-radius:3px;color:var(--gold);font-size:10px;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.tag-mint{border-color:rgba(181,230,206,.4);color:var(--mint)}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--mint);font-size:11.5px}
+.live-gold{color:var(--gold)}
+.dot{flex:none;width:7px;height:7px;border-radius:50%;background:currentColor;animation:breathe 2.2s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.4}}
+.tool{display:grid;place-items:center;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:none;color:var(--soft);transition:background .2s,color .2s}
+.tool:hover:not(:disabled){background:rgba(231,236,229,.1);color:var(--bone)}
+.tool:disabled{opacity:.35}
+.tool-bad:hover:not(:disabled){background:rgba(227,160,139,.14);color:var(--coral)}
+
+/* Controls */
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;max-width:980px;margin:0 auto 14px}
+.tabs{display:flex;padding:0 6px}
+.tabs button{display:inline-flex;align-items:center;gap:8px;height:36px;margin:0 9px;padding:0 2px;border:0;border-bottom:2px solid transparent;background:none;color:var(--soft);font-size:14px;transition:color .2s,border-color .2s}
+.tabs button:hover{color:var(--bone)}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--gold);color:var(--gold)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:4px;border:1px solid var(--edge);border-radius:999px;background:rgba(0,0,0,.32)}
+.seg button{height:30px;padding:0 14px;border:0;border-radius:999px;background:none;color:var(--soft);font-size:12.5px;transition:background .2s,color .2s}
+.seg button:hover{color:var(--bone)}
+.seg button[aria-pressed="true"]{background:rgba(216,188,141,.17);box-shadow:inset 0 1px 0 rgba(231,236,229,.12);color:var(--gold)}
+.seg-wide{display:flex}
+.seg-wide button{flex:1}
+.search{position:relative;display:flex;flex:1 1 300px;align-items:center;max-width:620px}
+.search .i{position:absolute;left:14px;width:16px;height:16px;color:var(--mute);pointer-events:none}
+input:not([type=checkbox]):not([type=range]),select{width:100%;height:40px;padding:0 14px;border:1px solid var(--edge);border-radius:10px;outline:none;background:rgba(7,14,21,.55);color:var(--bone);transition:border-color .2s}
+input:not([type=checkbox]):not([type=range]):focus,select:focus{border-color:rgba(216,188,141,.65)}
+input::placeholder{color:rgba(133,156,154,.55)}
+select option{background:var(--void);color:var(--bone)}
+/* After the general input rule, which would otherwise win and put the text under the magnifier. */
+.search input[type=search]{padding-left:40px;border-radius:999px}
+.inline{display:flex;align-items:center;gap:10px;margin-top:4px;padding:4px 4px 4px 16px;border-radius:999px;color:var(--soft);font-size:12.5px}
+.inline select{width:260px;height:34px;border-radius:999px}
+
+/* Mod results */
+.results{display:grid;gap:8px;max-width:980px;margin:0 auto}
+.hit{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:16px;padding:12px 14px;border:1px solid rgba(231,236,229,.1);border-radius:12px;background:rgba(7,14,21,.62);transition:border-color .2s,opacity .2s}
+.hit:hover{border-color:rgba(216,188,141,.32)}
+.hit.is-off{opacity:.5}
+.thumb{width:52px;height:52px;border-radius:10px;background:rgba(231,236,229,.05);object-fit:cover}
+.thumb-empty{display:grid;place-items:center;border:1px solid var(--line);color:var(--gold);font:400 20px var(--title)}
+.hit-body{min-width:0}
+.hit h3{overflow:hidden;font-size:14.5px;font-weight:500;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+.by{color:var(--mute);font-size:12.5px;font-weight:400}
+.hit p{display:-webkit-box;overflow:hidden;margin-top:2px;color:var(--soft);font-size:12.5px;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.hit-side{display:flex;align-items:center;gap:14px}
+.dl{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;min-width:64px;color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.ok{display:inline-flex;align-items:center;gap:6px;color:var(--mint);font-size:12.5px;white-space:nowrap}
+.skeleton{height:78px;border-radius:12px;background:linear-gradient(90deg,rgba(231,236,229,.025) 30%,rgba(231,236,229,.07),rgba(231,236,229,.025) 70%);background-size:300% 100%;animation:shimmer 1.4s linear infinite}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:0 0}}
+.empty{display:grid;justify-items:center;gap:14px;padding:56px 16px;color:var(--soft);text-align:center;text-shadow:0 1px 12px rgba(0,0,0,.7)}
+.empty p{max-width:46ch}
+.more{display:flex;justify-content:center;margin-top:18px}
+
+/* Switches */
+.switch{position:relative;display:inline-block;flex:none;width:40px;height:22px;cursor:pointer}
+.switch input{position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;opacity:0}
+.switch span{position:absolute;inset:0;border-radius:11px;background:rgba(231,236,229,.16);pointer-events:none;transition:background .2s}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--bone);transition:transform .25s var(--out),background .2s}
+.switch input:checked+span{background:var(--gold)}
+.switch input:checked+span::after{background:var(--void);transform:translateX(18px)}
+.switch input:focus-visible+span{outline:2px solid var(--mint);outline-offset:2px}
+
+/* Accounts */
+.accounts{display:grid;gap:10px;max-width:720px;margin:0 auto}
+.acct{display:flex;align-items:center;gap:16px;padding:16px;border:1px solid rgba(231,236,229,.1);border-radius:12px;background:rgba(7,14,21,.6)}
+.acct.is-selected{border-color:rgba(216,188,141,.55)}
+.acct-body{flex:1;min-width:0}
+.acct h3{font-size:15px;font-weight:500}
+.acct p{color:var(--mute);font-size:12.5px}
+/* What has to happen before sign-in works, ticked off as it's done. */
+.steps{width:100%;max-width:720px;margin:0 auto;padding:20px 24px;border:1px solid var(--edge);border-radius:14px;background:rgba(7,14,21,.55);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%)}
+.steps h3{margin-bottom:8px;color:var(--gold);font:400 11px var(--title);letter-spacing:.32em;text-transform:uppercase}
+.steps ol{display:grid;margin:0;padding:0;list-style:none}
+.step{display:grid;grid-template-columns:26px minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.step:first-child{border-top:0}
+.step-mark{display:grid;place-items:center;width:22px;height:22px;border:1.5px solid rgba(216,188,141,.5);border-radius:50%;color:var(--void)}
+.step.is-done .step-mark{border-color:var(--mint);background:var(--mint)}
+.step b{font-weight:500}
+.step p{color:var(--mute);font-size:12.5px}
+
+/* Settings: one glass panel. */
+.settings{display:grid;gap:26px;max-width:860px;margin:0 auto;padding:10px 28px 18px;border:1px solid var(--edge);border-radius:16px;background:rgba(7,14,21,.55);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%)}
+.group h3{margin:14px 0 4px;color:var(--gold);font:400 11px var(--title);letter-spacing:.32em;text-transform:uppercase}
+.setting{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,340px);align-items:center;gap:28px;padding:16px 0;border-bottom:1px solid var(--line)}
+.group:last-child .setting:last-child{border-bottom:0}
+.setting label:not(.switch),.setting .label{font-size:14px;font-weight:500}
+.setting p{margin-top:3px;color:var(--mute);font-size:12.5px;line-height:1.5}
+.setting>.switch,.setting>.btn{justify-self:end}
+.range{display:flex;align-items:center;gap:14px}
+input[type=range]{flex:1;accent-color:var(--gold)}
+output{min-width:52px;color:var(--gold);font-variant-numeric:tabular-nums;text-align:right}
+
+/* The status line, with a thin gold progress bar along its top edge. */
+.status{position:fixed;right:0;bottom:0;left:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;height:var(--foot);padding:0 20px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.5));color:var(--mute);font-size:11.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.status.is-busy{color:var(--bone)}
+.track{position:absolute;top:0;right:0;left:0;height:2px;overflow:hidden}
+#bar{display:block;width:100%;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.is-indeterminate #bar{width:28%;animation:sweep 1.3s ease-in-out infinite}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(360%)}}
+#status-text{overflow:hidden;text-overflow:ellipsis}
+.status-right{color:var(--mute)}
+.status-right.is-playing{color:var(--mint)}
+
+
+/* Toasts */
+#toasts{position:fixed;right:20px;bottom:44px;z-index:40;display:grid;justify-items:end;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:16px;max-width:440px;padding:12px 16px;border:1px solid var(--edge);border-left:2px solid var(--gold);border-radius:12px;background:rgba(7,14,21,.72);box-shadow:0 14px 36px rgba(0,0,0,.45);font-size:13px;line-height:1.45;pointer-events:auto;-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);animation:toast .35s var(--out)}
+.toast.good{border-left-color:var(--mint)}
+.toast.bad{border-left-color:var(--coral)}
+.toast.out{opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
+@keyframes toast{from{opacity:0;transform:translateY(8px)}}
+
+/* Dialogs: glass sheets. */
+dialog{width:min(640px,calc(100vw - 48px));max-height:calc(100vh - 48px);padding:0;border:1px solid rgba(231,236,229,.16);border-radius:18px;background:rgba(7,14,21,.8);box-shadow:inset 0 1px 0 rgba(231,236,229,.1),0 30px 90px rgba(0,0,0,.6);color:var(--bone);-webkit-backdrop-filter:blur(30px) saturate(150%);backdrop-filter:blur(30px) saturate(150%)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog[open]{animation:pop .3s var(--out)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.985)}}
+.sheet{display:grid;gap:16px;padding:22px 24px 24px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet-head h2,.sheet-title{font:300 17px/1.25 var(--title);letter-spacing:.26em;text-transform:uppercase}
+.field{display:grid;gap:8px}
+.field>span{color:var(--soft);font-size:12.5px}
+.field>span b{margin-left:6px;color:var(--gold);font-weight:500}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.row .search{flex:1 1 200px}
+.vlist{height:236px;overflow-y:auto;padding:4px;border:1px solid var(--edge);border-radius:12px;outline-offset:-2px;background:rgba(0,0,0,.35)}
+.vrow{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:8px;cursor:pointer;font-variant-numeric:tabular-nums}
+.vrow:hover{background:rgba(231,236,229,.05)}
+.vrow[aria-selected="true"]{background:rgba(216,188,141,.15);color:var(--gold)}
+.vdate{margin-left:auto;color:var(--mute);font-size:12px}
+.vlist .empty{padding:60px 16px}
+.form-error{color:var(--coral);font-size:13px}
+.form-error:empty{display:none}
+.sheet-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+.code{margin-right:-.3em;padding:14px 0 6px;color:var(--gold);font:300 38px/1 var(--title);letter-spacing:.3em;text-align:center;user-select:text}
+#login-open{justify-self:center}
+.wait{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--mute);font-size:13px;text-align:center}
+.is-error .wait{color:var(--coral)}
+.is-error .spinner{display:none}
+.spinner{flex:none;width:14px;height:14px;border:1.5px solid rgba(216,188,141,.25);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------------------------------------------------------------- the opening
+   Everything centres on the spot where Home's black hole sits (--cx, --cy), so the black hole that forms here
+   hands straight over to the real one. Only transform and opacity move, so it stays smooth on any PC. */
+.opening{--cx:50%;--cy:39.5%;position:fixed;inset:0;z-index:100;overflow:hidden}
+.opening-curtain{position:absolute;inset:0;background:var(--black);animation:curtain .85s .72s ease forwards}
+@keyframes curtain{to{opacity:0}}
+.opening-stage{position:absolute;inset:0;transform-origin:var(--cx) var(--cy);animation:punch .55s .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes punch{30%{transform:scale(1.06)}}
+/* A white-hot core, bone at the centre cooling to gold. Round, so its glow has no edges. */
+.core{position:absolute;top:var(--cy);left:var(--cx);width:180px;height:180px;margin:-90px 0 0 -90px;border-radius:50%;background:radial-gradient(circle,var(--bone) 0,rgba(231,236,229,.9) 14%,rgba(216,188,141,.55) 34%,rgba(216,188,141,.12) 56%,transparent 70%);animation:core 1.05s .08s cubic-bezier(.2,.8,.2,1) both}
+@keyframes core{0%{opacity:0;transform:scale(0)}30%{opacity:1;transform:scale(1)}52%{opacity:1;transform:scale(1.3)}100%{opacity:0;transform:scale(2.4)}}
+/* A thin lens flare straight through the core, with a soft halo that fades out inside its own box. */
+.flare{position:absolute;top:var(--cy);right:0;left:0;height:2px;margin-top:-1px;background:linear-gradient(90deg,transparent,rgba(216,188,141,.25) 18%,rgba(231,236,229,.95) 50%,rgba(216,188,141,.25) 82%,transparent);animation:flare 1.1s .4s cubic-bezier(.2,.8,.2,1) both}
+.flare::before{content:"";position:absolute;top:-34px;right:12%;left:12%;height:70px;background:radial-gradient(closest-side,rgba(216,188,141,.38),transparent)}
+@keyframes flare{0%{opacity:0;transform:scaleX(0)}22%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1.15)}}
+/* Soft shockwaves: a smooth glowing band, never a hard or broken ring. */
+.wave{position:absolute;top:var(--cy);left:var(--cx);width:640px;height:640px;margin:-320px 0 0 -320px;border-radius:50%;background:radial-gradient(circle,transparent 46%,rgba(231,236,229,.5) 58%,rgba(216,188,141,.22) 64%,transparent 71%);opacity:0;animation:wave 1.2s .5s cubic-bezier(.1,.7,.25,1) both}
+.wave-2{animation-duration:1.45s;animation-delay:.64s}
+@keyframes wave{0%{opacity:0;transform:scale(.06)}14%{opacity:1}100%{opacity:0;transform:scale(2.5)}}
+/* The core collapses: a black horizon with a gold edge grows, then hands over to the real black hole. */
+.horizon{position:absolute;top:var(--cy);left:var(--cx);width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:var(--black);box-shadow:0 0 0 1.5px rgba(216,188,141,.9),0 0 26px 6px rgba(216,188,141,.45);animation:horizon 1s .58s cubic-bezier(.16,1,.3,1) both}
+@keyframes horizon{0%{transform:scale(0)}38%{transform:scale(1)}100%{opacity:0;transform:scale(2)}}
+/* Sparks thrown outward, cooling from bone to gold to coral. app.js places them. */
+.sparks{position:absolute;top:var(--cy);left:var(--cx)}
+.spark{position:absolute;width:var(--s);height:var(--s);margin:calc(var(--s) / -2);border-radius:50%;box-shadow:0 0 6px 1px rgba(216,188,141,.7);animation:spark .95s cubic-bezier(.12,.8,.3,1) both}
+@keyframes spark{0%{opacity:0;transform:none;background:var(--bone)}10%{opacity:1}55%{background:var(--gold)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4);background:var(--coral)}}
+/* The title, after the fireball. */
+.opening-mark{position:absolute;top:var(--cy);right:0;left:0;isolation:isolate;display:grid;justify-items:center;transform:translateY(-50%);animation:markout .45s 1.95s ease forwards}
+/* The same soft round shade as Home, so the title stays crisp over the bright side of the disk. */
+.opening-mark::before{content:"";position:absolute;top:-60px;right:0;bottom:-50px;left:0;z-index:-1;background:radial-gradient(closest-side,rgba(0,0,0,.5),rgba(0,0,0,.28) 55%,transparent);animation:fade 1s 1s ease both}
+.opening-mark b{margin-right:-.32em;color:var(--bone);font:300 clamp(30px,4.4vw,58px)/1 var(--title);letter-spacing:.32em;text-shadow:0 2px 30px rgba(0,0,0,.85);white-space:nowrap}
+.opening-mark b span{display:inline-block;opacity:0;animation:letter .8s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(1.05s + var(--i) * 45ms)}
+@keyframes letter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.opening-mark i{display:block;width:min(360px,50vw);height:1px;margin:18px 0 12px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:line .9s 1.5s cubic-bezier(.16,1,.3,1) both}
+@keyframes line{from{transform:scaleX(0)}}
+.opening-mark em{margin-right:-.6em;color:var(--gold);font-size:11px;font-style:normal;letter-spacing:.6em;text-transform:uppercase;animation:fadeup .7s 1.62s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}}
+@keyframes markout{to{opacity:0;transform:translateY(-58%)}}
+/* While it plays, the real black hole pushes in around the same spot, then the bar and the Play screen glide in. */
+.booting .bg{transform-origin:50% 39.5%;animation:bg-in 1.6s .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes bg-in{from{opacity:0;transform:scale(1.25)}}
+.booting .topbar{animation:drop .8s 2.2s cubic-bezier(.16,1,.3,1) both}
+@keyframes drop{from{opacity:0;transform:translateY(-14px)}}
+.booting .home .hero{animation:rise-in .9s 2.28s cubic-bezier(.16,1,.3,1) both}
+.booting .home .shelf-head,.booting .home .shelf{animation:rise-in .9s 2.4s cubic-bezier(.16,1,.3,1) both}
+@keyframes rise-in{from{opacity:0;transform:translateY(16px)}}
+.booting .status{animation:fade .8s 2.4s ease both}
+@keyframes fade{from{opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* The console: the running game's log, live. Levels in the game's own colours. */
+dialog.console{width:min(1120px,calc(100vw - 48px));height:min(740px,calc(100vh - 48px))}
+.console-sheet{position:relative;grid-template-rows:auto minmax(0,1fr);box-sizing:border-box;height:100%;gap:14px}
+.console-headbar{flex-wrap:wrap}
+.console-name{display:flex;align-items:baseline;gap:14px;min-width:0}
+.console-of{overflow:hidden;color:var(--soft);font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+.console-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.console-search{flex:0 1 210px}
+.console-search input[type=search]{height:38px}
+.console-lines{overflow:auto;padding:12px 10px;border:1px solid var(--edge);border-radius:12px;background:rgba(0,0,0,.45);color:var(--soft);font:12px/1.6 "Cascadia Mono",ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word;user-select:text;cursor:text;overscroll-behavior:contain}
+.console-lines div{padding:0 6px;border-radius:4px}
+.console-lines div:hover{background:rgba(231,236,229,.04)}
+.console-lines .ln-warn{color:var(--gold)}
+.console-lines .ln-error{background:rgba(227,160,139,.07);color:var(--coral)}
+.console-lines .ln-launcher{color:var(--mint)}
+.console-lines .ln-quiet{color:var(--mute)}
+.console-lines .console-empty{padding:28px 6px;color:var(--mute);font-family:var(--sans);text-align:center}
+.console-latest{position:absolute;right:42px;bottom:40px;height:32px;padding:0 14px;border:1px solid rgba(216,188,141,.5);border-radius:999px;background:rgba(7,14,21,.9);box-shadow:0 10px 30px rgba(0,0,0,.5);color:var(--gold);font-size:12.5px;animation:rise .3s var(--out)}
+.console-latest:hover{background:var(--gold);color:var(--void)}
+.tag-dev{border-color:rgba(181,230,206,.4);color:var(--mint)}
+.live-off{color:var(--mute)}
+
+/* Installed: one compact panel, a hairline between rows, so forty mods fit on a screen or two. */
+.inst-bar{justify-content:space-between}
+.inst-status{flex:1;color:var(--mute);font-size:12.5px;text-align:right}
+.seg .n{margin-left:7px;color:var(--mute);font-size:11.5px;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"] .n{color:inherit;opacity:.75}
+.ilist{overflow:hidden;border:1px solid rgba(231,236,229,.1);border-radius:14px;background:rgba(7,14,21,.66);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%)}
+.irow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:58px;padding:9px 12px 9px 14px;transition:background .2s}
+.irow+.irow{border-top:1px solid rgba(231,236,229,.07)}
+.irow:hover{background:rgba(231,236,229,.035)}
+.irow.is-off .irow-main,.irow.is-off .thumb{opacity:.42}
+.thumb-sm{width:36px;height:36px;border-radius:8px}
+.thumb-sm.thumb-empty{font-size:15px}
+.irow-main{min-width:0}
+.irow-title{display:flex;align-items:baseline;gap:10px;min-width:0;font-size:14px;font-weight:500}
+.irow-title>:first-child{overflow:hidden;min-width:0;text-overflow:ellipsis;white-space:nowrap}
+.ver{flex:none;max-width:24ch;overflow:hidden;color:var(--mute);font-size:11.5px;font-weight:400;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}
+.irow-sub{overflow:hidden;margin-top:1px;color:var(--soft);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.irow-side{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.btn-update{border-color:rgba(181,230,206,.45);color:var(--mint)}
+.btn-update:hover:not(:disabled){border-color:var(--mint);background:var(--mint);color:var(--void)}
+.skeleton-row{height:58px;border-radius:0;background:linear-gradient(90deg,rgba(231,236,229,.02) 30%,rgba(231,236,229,.06),rgba(231,236,229,.02) 70%);background-size:300% 100%;animation:shimmer 1.4s linear infinite}
+
+/* Browse: category chips that scroll sideways, and the sort menu. */
+.browse-bar{flex-wrap:nowrap;justify-content:space-between;gap:16px}
+.chips{display:flex;flex:1;gap:6px;min-width:0;overflow-x:auto;padding:2px 0;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:30px;padding:0 13px;border:1px solid rgba(231,236,229,.12);border-radius:999px;background:rgba(7,14,21,.55);color:var(--soft);font-size:12.5px;transition:background .2s,border-color .2s,color .2s}
+.chip:hover{border-color:rgba(231,236,229,.3);color:var(--bone)}
+.chip[aria-pressed="true"]{border-color:rgba(216,188,141,.6);background:rgba(216,188,141,.17);color:var(--gold)}
+.sort{flex:none;margin-top:0}
+.sort select{width:176px;height:34px;border-radius:999px}
+.hit-meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;color:var(--mute);font-size:11.5px}
+.hit-meta .cat{color:var(--soft)}
+
+/* A mod's own page, inside the launcher: header, screenshots, its description, links. */
+dialog.mod-dialog{width:min(980px,calc(100vw - 48px));height:min(820px,calc(100vh - 48px))}
+.mod-page{display:grid;grid-template-rows:auto minmax(0,1fr);height:100%}
+.mod-head{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:18px;padding:22px 24px 18px;border-bottom:1px solid rgba(231,236,229,.08)}
+.mod-head .thumb{width:72px;height:72px;border-radius:14px}
+.mod-head .thumb-empty{font-size:28px}
+.mod-head h2{overflow:hidden;font:400 24px/1.2 var(--title);letter-spacing:.02em;text-overflow:ellipsis;white-space:nowrap}
+.mod-head .by{display:block;margin-top:2px;font-size:13px}
+.mod-stats{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:8px;color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.mod-stats .i{width:14px;height:14px;margin-right:5px;vertical-align:-2px}
+.mod-actions{display:flex;align-items:center;gap:8px}
+.mod-scroll{overflow-y:auto;padding:18px 24px 28px;overscroll-behavior:contain}
+.mod-summary{max-width:70ch;color:var(--soft);font-size:14px}
+.mod-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mod-tags span{height:24px;padding:0 10px;border:1px solid rgba(231,236,229,.12);border-radius:999px;color:var(--soft);font-size:11.5px;line-height:22px}
+.mod-tags .side{border-color:rgba(181,230,206,.3);color:var(--mint)}
+.gallery{display:flex;gap:10px;margin:18px -24px 4px;padding:0 24px 6px;overflow-x:auto;scroll-snap-type:x mandatory}
+.gallery button{flex:none;width:260px;height:146px;padding:0;overflow:hidden;border:1px solid rgba(231,236,229,.1);border-radius:10px;background:rgba(231,236,229,.04);scroll-snap-align:start;transition:border-color .2s}
+.gallery button:hover{border-color:rgba(216,188,141,.5)}
+.gallery img{width:100%;height:100%;object-fit:cover}
+.mod-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.lightbox{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:28px;background:rgba(3,7,11,.92);cursor:zoom-out}
+.lightbox img{width:100%;height:100%;object-fit:contain}
+.mod-loading{display:grid;place-items:center;height:100%;color:var(--mute)}
+
+/* Descriptions: the author's words, in the launcher's type. */
+.md{max-width:760px;margin-top:20px;color:var(--soft);font-size:14px;line-height:1.65;user-select:text;cursor:auto;overflow-wrap:anywhere}
+.md>*:first-child{margin-top:0}
+.md h1,.md h2,.md h3,.md h4,.md h5,.md h6{margin:1.4em 0 .5em;color:var(--bone);font-family:var(--title);font-weight:400;letter-spacing:.02em;line-height:1.25}
+.md h1{font-size:22px}.md h2{font-size:19px}.md h3{font-size:16.5px}.md h4,.md h5,.md h6{font-size:15px}
+.md p,.md ul,.md ol,.md blockquote,.md pre,.md table,.md details{margin:0 0 .9em}
+.md ul,.md ol{padding-left:1.4em}
+.md li{margin:.2em 0}
+.md a{color:var(--gold);text-decoration:underline;text-decoration-color:rgba(216,188,141,.4);text-underline-offset:.2em;cursor:pointer}
+.md a:hover{text-decoration-color:var(--gold)}
+.md strong,.md b{color:var(--bone);font-weight:600}
+.md img{max-width:100%;height:auto;border-radius:6px;vertical-align:middle}
+.md code{padding:.1em .35em;border-radius:4px;background:rgba(231,236,229,.08);font:12.5px "Cascadia Mono",ui-monospace,Consolas,monospace}
+.md pre{overflow-x:auto;padding:12px 14px;border:1px solid rgba(231,236,229,.08);border-radius:8px;background:rgba(0,0,0,.35)}
+.md pre code{padding:0;background:none}
+.md blockquote{padding:.2em 0 .2em 1em;border-left:2px solid rgba(216,188,141,.5);color:var(--soft)}
+.md hr{height:1px;margin:1.4em 0;border:0;background:rgba(231,236,229,.1)}
+.md table{border-collapse:collapse;font-size:13px}
+.md th,.md td{padding:6px 10px;border:1px solid rgba(231,236,229,.1);text-align:left}
+.md th{color:var(--bone);font-weight:500}
+.md summary{color:var(--bone);cursor:pointer}
+.md .md-center{text-align:center}
+.hit.is-link{cursor:pointer}
+dialog:focus,dialog:focus-visible{outline:none}
+
+/* Settings: the background picker, a grid of the game's black holes. */
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 12px;padding:16px 0 20px;border-bottom:1px solid var(--line)}
+.bg-pick{position:relative;display:grid;gap:7px;padding:0;border:0;background:none;color:var(--soft);font-size:12.5px;text-align:left}
+.bg-pick img{width:100%;aspect-ratio:16/9;border:1px solid rgba(231,236,229,.12);border-radius:10px;object-fit:cover;transition:border-color .2s,box-shadow .2s,transform .35s var(--out)}
+.bg-pick:hover img{border-color:rgba(231,236,229,.38);transform:translateY(-2px)}
+.bg-pick[aria-pressed="true"]{color:var(--gold)}
+.bg-pick[aria-pressed="true"] img{border-color:var(--gold);box-shadow:0 0 0 2px rgba(216,188,141,.3)}
+.bg-pick .where{position:absolute;top:7px;left:7px;display:flex;flex-wrap:wrap;gap:4px}
+.bg-pick .where span{padding:1px 8px;border-radius:999px;background:rgba(7,14,21,.78);color:var(--bone);font-size:10.5px;line-height:17px}
+
+/* Launcher updates: a small gold button at the top right once a new version has downloaded, and a small card while
+   it installs (the installer itself runs out of sight). */
+.update-pill{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px 0 11px;border:1px solid rgba(216,188,141,.55);border-radius:999px;background:rgba(216,188,141,.14);color:var(--gold);font-size:12.5px;font-weight:600;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);animation:pill-in .6s var(--out);transition:background .2s,color .2s,box-shadow .3s}
+.update-pill:hover{background:var(--gold);color:var(--void);box-shadow:0 8px 26px -8px rgba(216,188,141,.8)}
+.update-pill .dot{width:6px;height:6px}
+@keyframes pill-in{from{opacity:0;transform:translateY(-6px) scale(.92)}}
+dialog.updating{width:min(380px,calc(100vw - 48px))}
+.updating-sheet{justify-items:center;gap:8px;padding:30px 30px 26px;text-align:center}
+.updating-logo{width:56px;height:56px;margin-bottom:6px;border-radius:14px;box-shadow:0 10px 34px -10px rgba(216,188,141,.6)}
+.updating-version{color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
+.updating-notes{max-width:30ch;color:var(--soft);font-size:13px;line-height:1.5}
+.updating-notes:empty{display:none}
+.updating-bar{position:relative;width:100%;height:4px;margin:12px 0 4px;overflow:hidden;border-radius:999px;background:rgba(231,236,229,.1)}
+.updating-bar span{position:absolute;inset:0 auto 0 0;width:38%;border-radius:inherit;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:updating 1.3s ease-in-out infinite}
+@keyframes updating{from{transform:translateX(-100%)}to{transform:translateX(265%)}}
+.updating-state{color:var(--mute);font-size:12px}
+
+/* Presets: a card per way of playing, with what's in it and one button to get it. */
+.presets{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;max-width:1100px;margin:0 auto}
+.preset{display:flex;width:min(720px,100%);overflow:hidden;border:1px solid var(--edge);border-radius:14px;background:rgba(7,14,21,.55);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);animation:rise .45s var(--out)}
+.preset-art{position:relative;flex:none;width:220px;background:center/cover no-repeat}
+.preset-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 40%,rgba(7,14,21,.85))}
+.preset-performance{background-image:url("img/bg-ember.jpg")}
+.preset-body{display:flex;flex:1;flex-direction:column;gap:6px;min-width:0;padding:20px 24px 22px}
+.preset-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.preset-tags .live{margin-left:auto}
+.preset-name{margin:4px 0 0;margin-right:-.2em;font:300 28px/1.1 var(--title);letter-spacing:.2em;text-transform:uppercase}
+.preset-tagline{margin:0;color:var(--gold);font-size:13.5px}
+.preset-about{margin:0;color:var(--soft);font-size:13px}
+.preset-mods{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px;padding:0;list-style:none}
+.preset-mods li{padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(231,236,229,.04);color:var(--soft);font-size:11.5px}
+.preset-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
+@media (max-width:760px){.preset{flex-direction:column}.preset-art{width:auto;height:120px}.preset-art::after{background:linear-gradient(180deg,transparent 40%,rgba(7,14,21,.85))}}
+
+/* The account menu: a glass drop-down under the account button. */
+.who .face,.acct-row .face{flex:none;width:30px;height:30px;border-radius:8px;image-rendering:pixelated;box-shadow:0 0 0 1px rgba(231,236,229,.18)}
+.acct-menu{position:absolute;top:48px;right:120px;z-index:60;display:grid;gap:2px;width:300px;padding:8px;border-radius:16px;background:rgba(7,14,21,.9);animation:pop .22s var(--out)}
+.acct-menu[hidden]{display:none}
+.acct-row{display:flex;align-items:center;gap:6px;padding:4px;border-radius:12px}
+.acct-row.is-selected{background:rgba(216,188,141,.1)}
+.acct-pick{display:flex;flex:1;align-items:center;gap:10px;min-width:0;padding:4px;border:0;border-radius:10px;background:none;color:var(--bone);text-align:left}
+.acct-pick:hover{background:rgba(231,236,229,.06)}
+.acct-name{display:grid;min-width:0}
+.acct-name strong{overflow:hidden;font-size:13px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.acct-name small{color:var(--mute);font-size:11px}
+.acct-row .ok{display:grid;place-items:center;color:var(--gold)}
+.acct-none{padding:10px;color:var(--soft);font-size:12.5px}
+.menu-line{height:1px;margin:6px 4px;background:rgba(231,236,229,.1)}
+.menu-item{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--soft);font-size:13px;text-align:left}
+.menu-item:hover{background:rgba(231,236,229,.08);color:var(--bone)}
+.menu-item .i{width:16px;height:16px;color:var(--gold)}
+.shelf-import{margin-left:auto;font-size:12.5px}
+
+/* The instance screen. */
+dialog.inst-dialog{width:min(1040px,calc(100vw - 48px));height:min(760px,calc(100vh - 48px))}
+.inst-sheet{display:flex;flex-direction:column;height:100%;min-height:0}
+.inst-head{position:relative;display:flex;align-items:center;gap:16px;padding:18px 20px 14px}
+.inst-art{flex:none;width:64px;height:64px;border-radius:14px;background:center/cover no-repeat;box-shadow:0 0 0 1px rgba(231,236,229,.14)}
+.inst-name{flex:1;min-width:0}
+.inst-name h2{overflow:hidden;font:300 26px/1.15 var(--title);letter-spacing:.12em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.inst-name p{margin-top:4px;color:var(--soft);font-size:13px}
+.inst-actions{display:flex;align-items:center;gap:8px}
+.itabs{display:flex;gap:4px;align-self:flex-start;margin:0 20px 14px;padding:5px;border-radius:999px}
+.itabs button{display:flex;align-items:center;gap:8px;height:34px;padding:0 16px;border:0;border-radius:999px;background:none;color:var(--soft);font-size:13px;font-weight:500;transition:background .2s,color .2s}
+.itabs button:hover{color:var(--bone)}
+.itabs button[aria-current="true"]{background:rgba(216,188,141,.18);box-shadow:inset 0 1px 0 rgba(231,236,229,.14);color:var(--gold)}
+.itabs .i{width:16px;height:16px}
+.inst-body{flex:1;min-height:0;overflow-y:auto;padding:0 20px 20px}
+.ibar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.ibar .search{flex:1 1 280px}
+.ibar .sort select{width:180px}
+.ichips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ichips .n{margin-left:7px;color:var(--mute);font-size:11.5px}
+.irow-title .kind{color:var(--mute);font-size:11px;font-weight:400;letter-spacing:.06em;text-transform:uppercase}
+.pager{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:14px}
+.pager .pg{min-width:32px;height:32px;padding:0 8px;border:0;border-radius:8px;background:none;color:var(--soft);font-variant-numeric:tabular-nums}
+.pager .pg:hover{background:rgba(231,236,229,.08);color:var(--bone)}
+.pager .pg[aria-current="true"]{background:rgba(216,188,141,.18);color:var(--gold)}
+.pager .gap{padding:0 4px;color:var(--mute)}
+.crumbs{display:flex;flex:1;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;font-size:13.5px}
+.crumbs .sep{color:var(--mute)}
+.frow{display:grid;grid-template-columns:18px minmax(0,1fr) 90px 130px;align-items:center;gap:12px;min-height:42px;padding:0 14px;color:var(--soft);font-size:13px}
+.frow+.frow{border-top:1px solid rgba(231,236,229,.07)}
+.frow .i{width:16px;height:16px;color:var(--mute)}
+.frow.is-dir{cursor:pointer;color:var(--bone)}
+.frow.is-dir .i{color:var(--gold)}
+.frow.is-dir:hover{background:rgba(231,236,229,.05)}
+.fname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fmeta{color:var(--mute);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.world{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid rgba(231,236,229,.1);border-radius:14px;background:rgba(7,14,21,.55)}
+.world .thumb-lg{flex:none;width:64px;height:64px;border-radius:10px}
+.world-main{flex:1;min-width:0}
+.world-main h3{overflow:hidden;font-size:14.5px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.world-main p{margin-top:3px;color:var(--mute);font-size:12px}
+.world-tools{display:flex;gap:2px}
+.share{display:grid;justify-items:center;gap:14px;max-width:560px;margin:24px auto;text-align:center}
+.share-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:rgba(216,188,141,.14);color:var(--gold)}
+.share-icon .i{width:28px;height:28px}
+.share h3{font:300 22px var(--title);letter-spacing:.14em;text-transform:uppercase}
+.share .check{display:flex;align-items:center;gap:10px;color:var(--soft);font-size:13px}
+.share-note{color:var(--mute);font-size:12px}
+
+/* The Skins tab. */
+.skin-page{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start;max-width:1040px;margin:0 auto;padding:24px;border-radius:22px}
+.skin-page>.empty,.skin-page>.wait{grid-column:1/-1}
+.skin-stage{display:grid;place-items:center;height:480px;border:1px solid rgba(231,236,229,.1);border-radius:18px;background:radial-gradient(circle at 50% 38%,rgba(216,188,141,.16),rgba(7,14,21,.6) 70%)}
+.skin-preview{width:224px;height:448px;image-rendering:pixelated;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+.skin-left{display:grid;gap:12px;justify-items:stretch}
+.skin-left .btn-lg{justify-content:center}
+.skin-left .btn-text{justify-self:center;font-size:12.5px}
+.skin-who{display:flex;justify-content:center;font-size:15px;font-weight:500}
+.skin-who small{margin-left:8px;color:var(--mute);font-size:12px;font-weight:400}
+.skin-right{display:flex;flex-direction:column;gap:14px;min-width:0}
+.skin-tabs{align-self:flex-start;margin:0}
+.skin-pane{max-height:560px;overflow-y:auto;padding-right:4px}
+.skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.skin-card{position:relative}
+.skin-pick{display:grid;justify-items:center;gap:6px;width:100%;padding:12px 6px 10px;border:1px solid rgba(231,236,229,.1);border-radius:14px;background:rgba(7,14,21,.5);color:var(--soft);font-size:12px;transition:border-color .2s,background .2s,transform .3s var(--out)}
+.skin-pick:hover{border-color:rgba(216,188,141,.45);background:rgba(231,236,229,.05);transform:translateY(-2px)}
+.skin-card.is-picked .skin-pick{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(216,188,141,.35);color:var(--gold)}
+.skin-thumb{width:48px;height:96px;image-rendering:pixelated}
+.skin-pick span{overflow:hidden;max-width:100%;text-overflow:ellipsis;white-space:nowrap}
+.skin-x{position:absolute;top:4px;right:4px;display:grid;place-items:center;width:22px;height:22px;padding:0;border:0;border-radius:50%;background:rgba(7,14,21,.8);color:var(--mute);opacity:0;transition:opacity .2s,color .2s}
+.skin-card:hover .skin-x{opacity:1}
+.skin-x:hover{color:var(--coral)}
+.packs{display:grid;gap:18px;justify-items:start}
+.pack{display:grid;gap:10px;width:100%}
+.pack-head{display:flex;align-items:center;gap:10px}
+.pack-head h3{font-size:14px;font-weight:500}
+.pack-head .tool{margin-left:auto}
+.upload{display:grid;gap:14px}
+.drop{display:grid;justify-items:center;gap:8px;padding:56px 20px;border:1.5px dashed rgba(216,188,141,.4);border-radius:18px;background:rgba(7,14,21,.45);color:var(--soft);transition:border-color .2s,background .2s}
+.drop:hover{border-color:var(--gold);background:rgba(216,188,141,.06)}
+.drop .i{width:28px;height:28px;color:var(--gold)}
+.drop strong{color:var(--bone);font-size:16px;font-weight:500}
+.drop span{font-size:12.5px}
+.upload .check{display:flex;align-items:center;gap:10px;color:var(--soft);font-size:13px}
+.cape-list{display:flex;flex-wrap:wrap;gap:6px}
+/* The play button that appears on an instance card under the mouse. */
+.card-play{position:absolute;top:39px;left:50%;z-index:2;display:grid;place-items:center;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:var(--gold);color:var(--void);box-shadow:0 8px 26px rgba(0,0,0,.45),0 0 0 4px rgba(216,188,141,.18);opacity:0;transform:translate(-50%,-50%) scale(.8);transition:opacity .2s,transform .3s var(--out),background .2s}
+.card-play .i{width:18px;height:18px;margin-left:2px}
+.card:hover .card-play,.card:focus-within .card-play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.card-play:hover{background:var(--gold-hi);transform:translate(-50%,-50%) scale(1.08)}

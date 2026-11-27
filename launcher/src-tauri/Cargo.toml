@@ -1,0 +1,33 @@
+[package]
+name = "anti-horizon-launcher"
+version = "0.2.12"
+description = "Anti-Horizon Launcher: a fast Minecraft launcher with Modrinth and CurseForge mods"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# custom-protocol: serve the window from the files built into the exe (no dev server, ever).
+tauri = { version = "2", features = ["custom-protocol"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# native-tls uses Windows' own TLS (SChannel) and certificate store: nothing extra to compile or ship.
+reqwest = { version = "0.12", default-features = false, features = ["json", "native-tls"] }
+tokio = { version = "1", features = ["fs", "time", "sync", "io-util"] }
+futures = "0.3"
+sha1 = "0.10"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+# Signed launcher updates: downloads the new NSIS setup and runs it in passive mode.
+tauri-plugin-updater = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_Memory", "Win32_System_SystemInformation", "Win32_UI_Shell"] }
+
+# Small and fast: one optimised unit, link-time optimisation, no debug symbols.
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

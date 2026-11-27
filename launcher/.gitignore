@@ -1,0 +1,6 @@
+/src-tauri/target/
+/src-tauri/gen/
+*.log
+/release/
+/src-tauri/presets/*.jar
+__pycache__/

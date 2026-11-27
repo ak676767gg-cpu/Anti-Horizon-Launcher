@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anti Horizon Launcher</title>
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head>
+<body class="booting">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3.5 3 8l9 4.5L21 8z"/><path d="m3 12 9 4.5 9-4.5M3 16l9 4.5 9-4.5"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.6 4.2-5.4 7.5-5.4s6.1 1.8 7.5 5.4"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4l2 2.5h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="m7.5 9.5 3 2.5-3 2.5M12.5 15h4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <!-- Bends the view through the glass bar a little, like real glass. -->
+    <filter id="refract" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="7" result="noise"/>
+      <feGaussianBlur in="noise" stdDeviation="1.5" result="soft"/>
+      <feDisplacementMap in="SourceGraphic" in2="soft" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <symbol id="i-min" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+    <symbol id="i-max" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/></symbol>
+  </defs>
+</svg>
+
+<!-- A black hole from the game behind every section; two layers so they crossfade. -->
+<div class="bg" id="bg" aria-hidden="true"><div class="bg-img"></div><div class="bg-img"></div></div>
+
+<!-- The opening: a white-hot core flares, throws off a shockwave and sparks, collapses into a black hole, and the
+     title arrives. Drawn by CSS from the very first frame; app.js adds the sparks and lets a click skip it. -->
+<div class="opening" id="opening" aria-hidden="true">
+  <div class="opening-curtain"></div>
+  <div class="opening-stage">
+    <div class="flare"></div>
+    <div class="wave"></div>
+    <div class="wave wave-2"></div>
+    <div class="core"></div>
+    <div class="horizon"></div>
+    <div class="sparks" id="sparks"></div>
+  </div>
+  <div class="opening-mark">
+    <b><span style="--i:0">A</span><span style="--i:1">N</span><span style="--i:2">T</span><span style="--i:3">I</span><span style="--i:4">&nbsp;</span><span style="--i:5">H</span><span style="--i:6">O</span><span style="--i:7">R</span><span style="--i:8">I</span><span style="--i:9">Z</span><span style="--i:10">O</span><span style="--i:11">N</span></b>
+    <i></i>
+    <em>Launcher</em>
+  </div>
+</div>
+
+<header class="topbar" data-tauri-drag-region>
+  <div class="brand" data-tauri-drag-region>
+    <img src="logo.png" alt="" width="30" height="30">
+    <div><b>Anti Horizon</b><span>Launcher</span></div>
+  </div>
+  <nav class="glass tabs-nav" aria-label="Sections">
+    <span class="tab-lens" aria-hidden="true"></span>
+    <button class="nav-item" data-view="play" aria-current="page"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg>Play</button>
+    <button class="nav-item" data-view="mods"><svg class="i" aria-hidden="true"><use href="#i-cube"/></svg>Mods</button>
+    <button class="nav-item" data-view="skins"><svg class="i" aria-hidden="true"><use href="#i-user"/></svg>Skins</button>
+    <button class="nav-item" data-view="settings"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Settings</button>
+  </nav>
+  <div class="top-right">
+    <button class="update-pill" id="update-pill" type="button" hidden><span class="dot" aria-hidden="true"></span><svg class="i i-sm" aria-hidden="true"><use href="#i-download"/></svg>Update</button>
+    <button class="glass who" id="who" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Accounts"></button>
+    <div class="glass acct-menu" id="acct-menu" role="menu" hidden></div>
+    <div class="winctl">
+      <button class="wc glass" id="wc-min" aria-label="Minimise" title="Minimise"><svg class="i" aria-hidden="true"><use href="#i-min"/></svg></button>
+      <button class="wc glass" id="wc-max" aria-label="Maximise" title="Maximise"><svg class="i" aria-hidden="true"><use href="#i-max"/></svg></button>
+      <button class="wc glass wc-close" id="wc-close" aria-label="Close" title="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="view view-home" id="view-play">
+    <div class="home">
+      <div class="hero" id="hero"></div>
+      <div class="shelf-head"><h2 class="h3">Instances</h2><span class="count" id="count"></span>
+        <button class="btn-text shelf-import" type="button" id="import-pack" title="Open a .mrpack a friend shared">Import .mrpack</button>
+        <input type="file" id="import-file" accept=".mrpack,.zip" hidden></div>
+      <div class="shelf" id="instances"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-mods" hidden>
+    <header class="view-head">
+      <p class="eyebrow" id="mods-sources">Modrinth · CurseForge</p>
+      <h2 class="h2">Mods</h2>
+      <label class="inline glass"><span>Instance</span><select id="mods-instance"></select></label>
+    </header>
+    <div class="toolbar">
+      <div class="tabs" role="tablist" aria-label="Mods">
+        <button role="tab" data-tab="browse" aria-selected="true">Browse</button>
+        <button role="tab" data-tab="installed" aria-selected="false">Installed <span class="count" id="installed-count"></span></button>
+      </div>
+      <div class="seg glass" id="mods-kind" role="group" aria-label="Kind">
+        <button data-k="mod" aria-pressed="true">Mods</button>
+        <button data-k="resourcepack" aria-pressed="false">Resource packs</button>
+        <button data-k="shader" aria-pressed="false">Shaders</button>
+        <button data-k="modpack" aria-pressed="false">Modpacks</button>
+      </div>
+      <div class="seg glass" id="mods-source" role="group" aria-label="Source">
+        <button data-s="modrinth" aria-pressed="true">Modrinth</button>
+        <button data-s="curseforge" aria-pressed="false">CurseForge</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <label class="search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="mods-q" type="search" placeholder="Search Modrinth" aria-label="Search" autocomplete="off" spellcheck="false"></label>
+      <button class="btn btn-line" id="mods-folder"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg>Open folder</button>
+    </div>
+    <div class="toolbar browse-bar" id="browse-bar">
+      <div class="chips" id="mods-cats" role="group" aria-label="Category"></div>
+      <label class="inline glass sort"><span>Sort</span><select id="mods-sort" aria-label="Sort">
+        <option value="">Best match</option>
+        <option value="downloads">Most downloaded</option>
+        <option value="follows">Most followed</option>
+        <option value="updated">Recently updated</option>
+        <option value="newest">Newest</option>
+      </select></label>
+    </div>
+    <div class="toolbar inst-bar" id="inst-bar" hidden>
+      <div class="seg glass" id="inst-filter" role="group" aria-label="Show">
+        <button data-f="all" aria-pressed="true">All<span class="n" id="n-all"></span></button>
+        <button data-f="on" aria-pressed="false">On<span class="n" id="n-on"></span></button>
+        <button data-f="off" aria-pressed="false">Off<span class="n" id="n-off"></span></button>
+        <button data-f="updates" aria-pressed="false">Updates<span class="n" id="n-updates"></span></button>
+      </div>
+      <span class="inst-status" id="inst-status" role="status"></span>
+      <button class="btn btn-line" id="inst-check"></button>
+    </div>
+    <div class="results" id="mods-results"></div>
+    <div class="more"><button class="btn btn-line" id="mods-more" hidden>Load more</button></div>
+  </section>
+
+  <section class="view" id="view-skins" hidden>
+    <header class="view-head">
+      <p class="eyebrow">Minecraft</p>
+      <h2 class="h2">Skins</h2>
+      <p class="intro-text">Your skin and cape, straight on your Minecraft account: what you choose here is what everyone sees in game.</p>
+    </header>
+    <div class="skin-page glass" id="skin-body"></div>
+    <input type="file" id="skin-file" accept="image/png" hidden>
+    <input type="file" id="skin-pack-file" accept=".zip" hidden>
+  </section>
+
+  <section class="view" id="view-settings" hidden>
+    <header class="view-head">
+      <p class="eyebrow">Launcher</p>
+      <h2 class="h2">Settings</h2>
+      <span class="saved" id="saved" aria-live="polite"></span>
+    </header>
+    <div class="settings">
+      <section class="group">
+        <h3>Background</h3>
+        <div class="setting">
+          <div><span class="label">Black holes from the game</span><p id="bg-note"></p></div>
+          <div class="seg glass seg-wide" id="bg-mode" role="group" aria-label="Background">
+            <button type="button" data-m="pages" aria-pressed="true">Per page</button>
+            <button type="button" data-m="one" aria-pressed="false">One for all</button>
+            <button type="button" data-m="shuffle" aria-pressed="false">Shuffle</button>
+          </div>
+        </div>
+        <div class="bg-grid" id="bg-grid" role="group" aria-label="Pick a background"></div>
+      </section>
+      <section class="group">
+        <h3>Performance</h3>
+        <div class="setting">
+          <div><label for="s-mem">Memory for Minecraft</label><p>How much RAM the game may use. 4 to 6 GB suits most modpacks; more than it needs only slows garbage collection.<span id="s-mem-ram"></span></p></div>
+          <div class="range"><input type="range" id="s-mem" min="1024" max="16384" step="512"><output id="s-mem-out" for="s-mem"></output></div>
+        </div>
+        <div class="setting">
+          <div><label for="s-gc">Tuned Java flags</label><p>G1 garbage-collector settings that keep frame times even, with fewer and shorter pauses.</p></div>
+          <label class="switch"><input type="checkbox" id="s-gc"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-min">Minimise while playing</label><p>Tucks the launcher away when the game starts and brings it back when you quit.</p></div>
+          <label class="switch"><input type="checkbox" id="s-min"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-jei">Hide JEI's server recipe warning</label><p>On servers without JEI, JEI says in chat that the server didn't send its recipes. It's harmless, so the launcher turns the message off. Takes effect the next time you press Play.</p></div>
+          <label class="switch"><input type="checkbox" id="s-jei"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-client">Anti Horizon client in every instance</label><p>Adds the client (Right Shift menu, HUD and the aurora title screen) to every Fabric instance on 1.21.11 or 26.1 to 26.3 when you press Play, with Fabric API if it's missing. Off: the launcher leaves your instances as they are.</p></div>
+          <label class="switch"><input type="checkbox" id="s-client"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-console">Open the console when a game starts</label><p>Shows what Minecraft prints as it loads and plays: warnings, errors and crashes, live.</p></div>
+          <label class="switch"><input type="checkbox" id="s-console"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-intro">Startup animation</label><p>The black hole forming as the launcher opens. A click or any key skips it.</p></div>
+          <label class="switch"><input type="checkbox" id="s-intro"><span></span></label>
+        </div>
+        <div class="setting">
+          <div><label for="s-update">Updates</label><p id="s-update-text" role="status">New versions download in the background. When one is ready, an Update button appears at the top right.</p></div>
+          <button class="btn btn-line" type="button" id="s-update">Check now</button>
+        </div>
+      </section>
+      <section class="group">
+        <h3>Java</h3>
+        <div class="setting">
+          <div><label for="s-java">Java path</label><p>Leave empty to use Mojang's own Java for each version, picked and downloaded automatically.</p></div>
+          <input id="s-java" placeholder="Automatic" spellcheck="false" autocomplete="off">
+        </div>
+        <div class="setting">
+          <div><label for="s-jvm">Extra Java arguments</label><p>Added after the launcher's own, for advanced tweaks.</p></div>
+          <input id="s-jvm" placeholder="-Dexample=true" spellcheck="false" autocomplete="off">
+        </div>
+      </section>
+      <section class="group">
+        <h3>Storage</h3>
+        <div class="setting">
+          <div><span class="label">Launcher folder</span><p>Instances, game files and Java live here, apart from your normal .minecraft folder.</p></div>
+          <button class="btn btn-line" id="s-open"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg>Open folder</button>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="status" id="status">
+  <span class="track" aria-hidden="true"><i id="bar"></i></span>
+  <span id="status-text">Ready</span>
+  <span class="status-right" id="status-right"></span>
+</footer>
+
+<div id="toasts"></div>
+
+<dialog id="dlg-new" aria-labelledby="new-title">
+  <div class="sheet">
+    <header class="sheet-head"><h2 id="new-title">New instance</h2><button class="tool" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <label class="field"><span>Name</span><input id="new-name" autofocus maxlength="48" placeholder="Named after the version if left empty" autocomplete="off" spellcheck="false"></label>
+    <div class="field">
+      <span>Minecraft version <b id="new-picked"></b></span>
+      <div class="row">
+        <div class="seg" id="new-filter" role="group" aria-label="Version types">
+          <button type="button" data-f="release" aria-pressed="true">Releases</button>
+          <button type="button" data-f="snapshot" aria-pressed="false">Snapshots</button>
+          <button type="button" data-f="old" aria-pressed="false">Betas &amp; alphas</button>
+        </div>
+        <label class="search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="new-search" type="search" placeholder="Find a version" aria-label="Find a version" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <div class="vlist" id="new-versions" role="listbox" aria-label="Minecraft versions" tabindex="0"></div>
+    </div>
+    <div class="field">
+      <span>Mod loader</span>
+      <div class="seg seg-wide" id="new-loader" role="group" aria-label="Mod loader">
+        <button type="button" data-l="vanilla" aria-pressed="true">Vanilla</button>
+        <button type="button" data-l="fabric" aria-pressed="false">Fabric</button>
+        <button type="button" data-l="quilt" aria-pressed="false">Quilt</button>
+        <button type="button" data-l="forge" aria-pressed="false">Forge</button>
+        <button type="button" data-l="neoforge" aria-pressed="false">NeoForge</button>
+      </div>
+    </div>
+    <label class="field" id="new-lv-field" hidden><span>Loader version</span><select id="new-lv"></select></label>
+    <p class="form-error" id="new-error" role="alert"></p>
+    <footer class="sheet-foot">
+      <button class="btn btn-line" type="button" data-close>Cancel</button>
+      <button class="btn btn-gold" type="button" id="new-create">Create instance</button>
+    </footer>
+  </div>
+</dialog>
+
+<dialog id="dlg-login" aria-labelledby="login-title">
+  <div class="sheet">
+    <header class="sheet-head"><h2 id="login-title">Sign in</h2><button class="tool" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <p class="lede">Open microsoft.com/link, enter this code, and sign in with the account that owns Minecraft.</p>
+    <div class="code" id="login-code"></div>
+    <button class="btn btn-gold" type="button" id="login-open" autofocus>Copy the code and open the page</button>
+    <p class="wait"><span class="spinner" aria-hidden="true"></span><span id="login-state" role="status">Waiting for you to sign in</span></p>
+  </div>
+</dialog>
+
+<dialog id="dlg-console" class="console" aria-labelledby="console-title">
+  <div class="sheet console-sheet">
+    <header class="sheet-head console-headbar">
+      <div class="console-name"><h2 id="console-title">Console</h2><span class="console-of" id="console-of"></span><span id="console-state"></span></div>
+      <div class="console-tools">
+        <div class="seg" id="console-filter" role="group" aria-label="Show">
+          <button type="button" data-f="all" aria-pressed="true">All</button>
+          <button type="button" data-f="warn" aria-pressed="false">Warnings</button>
+          <button type="button" data-f="error" aria-pressed="false">Errors</button>
+        </div>
+        <label class="search console-search"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="console-search" type="search" placeholder="Find in log" aria-label="Find in log" autocomplete="off" spellcheck="false"></label>
+        <button class="tool" type="button" id="console-copy" title="Copy what is shown" aria-label="Copy what is shown"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        <button class="tool" type="button" id="console-folder" title="Open the logs folder" aria-label="Open the logs folder"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg></button>
+        <button class="tool" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button>
+      </div>
+    </header>
+    <div class="console-lines" id="console-lines" role="log" tabindex="0"></div>
+    <button class="console-latest" type="button" id="console-latest" hidden>Jump to latest</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-mod" class="mod-dialog" aria-labelledby="mod-title">
+  <div class="mod-page" id="mod-page"></div>
+  <div class="lightbox" id="mod-lightbox" hidden><img alt=""></div>
+</dialog>
+
+<dialog id="dlg-update" class="updating" aria-labelledby="updating-title">
+  <div class="sheet updating-sheet">
+    <img class="updating-logo" src="logo.png" alt="" width="56" height="56">
+    <h2 id="updating-title" class="sheet-title">Updating</h2>
+    <p class="updating-version" id="updating-version"></p>
+    <p class="updating-notes" id="updating-notes"></p>
+    <div class="updating-bar" aria-hidden="true"><span></span></div>
+    <p class="updating-state" id="updating-state" role="status"></p>
+  </div>
+</dialog>
+
+<dialog id="dlg-inst" class="inst-dialog" aria-labelledby="inst-title">
+  <div class="inst-sheet">
+    <header class="inst-head" id="inst-head"></header>
+    <nav class="glass itabs" id="inst-tabs" aria-label="Instance">
+      <button type="button" data-t="content"><svg class="i" aria-hidden="true"><use href="#i-cube"/></svg>Content</button>
+      <button type="button" data-t="files"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg>Files</button>
+      <button type="button" data-t="worlds"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>Worlds</button>
+      <button type="button" data-t="share"><svg class="i" aria-hidden="true"><use href="#i-share"/></svg>Share</button>
+    </nav>
+    <div class="inst-body" id="inst-body"></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-confirm" aria-labelledby="confirm-title">
+  <form method="dialog" class="sheet">
+    <h2 id="confirm-title" class="sheet-title"></h2>
+    <p id="confirm-body" class="lede"></p>
+    <footer class="sheet-foot">
+      <button class="btn btn-line" value="no" autofocus>Cancel</button>
+      <button class="btn btn-danger" value="yes" id="confirm-yes">Delete</button>
+    </footer>
+  </form>
+</dialog>
+</body>
+</html>

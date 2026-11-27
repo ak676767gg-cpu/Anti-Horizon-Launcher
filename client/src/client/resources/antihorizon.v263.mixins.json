@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.antihorizon.client.v263.mixin",
+	"plugin": "com.antihorizon.boot.MixinGate$V263",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"PanoramaMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.antihorizon.client.mixin",
+	"plugin": "com.antihorizon.boot.MixinGate$Legacy",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"PanoramaMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
