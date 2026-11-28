@@ -1,6 +1,6 @@
 [package]
 name = "anti-horizon-launcher"
-version = "0.2.14"
+version = "0.2.15"
 description = "Anti-Horizon Launcher: a fast Minecraft launcher with Modrinth and CurseForge mods"
 edition = "2021"
 

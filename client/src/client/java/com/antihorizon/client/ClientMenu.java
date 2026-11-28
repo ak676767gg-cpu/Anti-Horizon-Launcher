@@ -100,7 +100,7 @@ public final class ClientMenu extends Screen {
 	private static List<Module> modules(Minecraft mc) {
 		List<Module> list = new ArrayList<>();
 		for (Hud.Module m : Hud.ALL) list.add(new Module(m.name, "HUD", m.glyph, m.about, null, m::on, m::set, null));
-		if (Cosmetics.RELEASED) list.add(new Module("Cosmetics", "Mods", "AH", "Anti-Horizon capes, wings and halos on players. Pick yours in the launcher.", null,
+		if (Cosmetics.RELEASED) list.add(new Module("Cosmetics", "Mods", "AH", "Anti-Horizon capes on players, some of them live. Pick yours in the launcher.", null,
 				() -> Config.cosmetics, on -> {
 					Config.cosmetics = on;
 					Config.save();

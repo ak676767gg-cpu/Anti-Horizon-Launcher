@@ -149,17 +149,41 @@ pub async fn cosmetics_get() -> Result<Mine, String> {
     let Ok(account) = crate::auth::account_for_launch().await else {
         return Ok(Mine { name: None, look: Look::default() });
     };
-    let look = signed(&account, reqwest::Method::GET, None).await?;
+    // From the service when it answers, else what was last saved on this PC.
+    let look = match signed(&account, reqwest::Method::GET, None).await {
+        Ok(look) => look,
+        Err(_) => saved_here(&account.uuid),
+    };
     Ok(Mine { name: Some(account.name), look })
 }
 
+/// The look last saved on this PC for this account (the file the client mod reads).
+fn saved_here(uuid: &str) -> Look {
+    let path = crate::platform::home().join(".anti-horizon").join("cosmetics-me.json");
+    read_json::<Value>(&path)
+        .filter(|v| v.get("uuid").and_then(Value::as_str) == Some(uuid))
+        .and_then(|v| serde_json::from_value(v).ok())
+        .unwrap_or_default()
+}
+
 /// Wears these cosmetics on the selected account.
+#[derive(Serialize)]
+pub struct Saved {
+    look: Look,
+    /// Whether the cosmetics service has it too (so other players see it), or only this PC.
+    shared: bool,
+}
+
+/// Wears these cosmetics on the selected account: in your own game straight away (the client mod reads the file this
+/// writes), and for everyone else once the cosmetics service has it.
 #[tauri::command]
-pub async fn cosmetics_set(look: Look) -> Result<Look, String> {
+pub async fn cosmetics_set(look: Look) -> Result<Saved, String> {
     let account = crate::auth::account_for_launch().await?;
-    let saved = signed(&account, reqwest::Method::PUT, Some(&look)).await?;
-    tell_game(&account.uuid, &saved);
-    Ok(saved)
+    tell_game(&account.uuid, &look);
+    match signed(&account, reqwest::Method::PUT, Some(&look)).await {
+        Ok(saved) => Ok(Saved { look: saved, shared: true }),
+        Err(_) => Ok(Saved { look, shared: false }),
+    }
 }
 
 #[cfg(test)]

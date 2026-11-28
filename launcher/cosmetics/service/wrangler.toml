@@ -14,7 +14,7 @@ routes = [{ pattern = "cosmetics.anti-horizon.com", custom_domain = true }]
 [[d1_databases]]
 binding = "DB"
 database_name = "cosmetics"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "7db8857a-2081-42d7-a66c-b402a52853d0"
 
 [observability]
 enabled = false

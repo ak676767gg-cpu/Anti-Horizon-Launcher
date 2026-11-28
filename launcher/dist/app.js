@@ -1996,7 +1996,8 @@ async function importPack(ev) {
 const cos = {
   catalog: null, saved: {}, look: {}, name: null, tab: "cape", busy: false, error: "", skin: "", slim: false, viewer: null,
 };
-const COS_TABS = [["cape", "Capes"], ["wings", "Wings"], ["head", "Hats and halos"]];
+// Capes only for now: wings and halos come later.
+const COS_TABS = [["cape", "Capes"]];
 const COS_ABOUT = {
   accretion: "A black hole's disk, turning around your head",
   halo: "A glowing white ring above your head",
@@ -2017,8 +2018,8 @@ async function enterCosmetics() {
   cos.catalog = catalog.status === "fulfilled" ? catalog.value : { cape: [], wings: [], head: [] };
   if (mine.status === "fulfilled") {
     cos.name = mine.value.name;
-    cos.saved = { ...mine.value.look };
-    cos.look = { ...mine.value.look };
+    cos.saved = { cape: mine.value.look.cape || null };
+    cos.look = { ...cos.saved };
   } else {
     cos.name = state.accounts.find((a) => a.selected)?.name || null;
     cos.error = String(mine.reason);
@@ -2046,9 +2047,10 @@ async function saveCosmetics() {
   cos.error = "";
   renderCosmetics(true);
   try {
-    cos.saved = { ...(await invoke("cosmetics_set", { look: { cape: cos.look.cape || null, wings: cos.look.wings || null, head: cos.look.head || null } })) };
+    const done = await invoke("cosmetics_set", { look: { cape: cos.look.cape || null, wings: null, head: null } });
+    cos.saved = { cape: done.look.cape || null };
     cos.look = { ...cos.saved };
-    toast("Saved. Everyone with the Anti-Horizon client sees them on you now.");
+    toast(done.shared ? "Saved. Everyone with the Anti-Horizon client sees it on you now." : "Saved. It's on you in your game now.");
   } catch (err) {
     cos.error = String(err);
   }

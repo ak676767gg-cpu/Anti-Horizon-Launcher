@@ -67,7 +67,9 @@ public final class Cosmetics {
 	}
 
 	/** Cosmetics aren't released yet: until they are, the client neither asks the service nor draws any. */
-	public static final boolean RELEASED = false;
+	public static final boolean RELEASED = true;
+	/** Capes only for now: wings and head pieces aren't released yet, so they're never drawn. */
+	static final boolean CAPES_ONLY = true;
 	private static final String SERVICE = System.getProperty("antihorizon.cosmetics", "https://cosmetics.anti-horizon.com");
 	private static final Path MINE = Path.of(System.getProperty("user.home"), ".anti-horizon", "cosmetics-me.json");
 	private static final long FRESH_MS = 5 * 60_000;
@@ -253,7 +255,7 @@ public final class Cosmetics {
 	}
 
 	private static Look look(JsonObject o) {
-		return new Look(pick(o, "cape", CAPES), pick(o, "wings", WINGS), pick(o, "head", HEAD));
+		return new Look(pick(o, "cape", CAPES), CAPES_ONLY ? null : pick(o, "wings", WINGS), CAPES_ONLY ? null : pick(o, "head", HEAD));
 	}
 
 	private static String pick(JsonObject o, String key, Set<String> known) {

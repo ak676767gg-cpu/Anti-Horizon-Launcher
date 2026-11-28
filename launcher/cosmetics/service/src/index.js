@@ -14,8 +14,9 @@ import catalog from "../../catalog.json";
 
 const KNOWN = {
   cape: new Set(catalog.cape.map((c) => c.id)),
-  wings: new Set(catalog.wings.map((c) => c.id)),
-  head: new Set(catalog.head.map((c) => c.id)),
+  // Capes only for now: wings and head pieces aren't released, so they can't be worn yet.
+  wings: new Set(),
+  head: new Set(),
 };
 const SLOTS = ["cape", "wings", "head"];
 const UUID = /^[0-9a-f]{32}$/;
