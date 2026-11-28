@@ -45,16 +45,28 @@ def get(url):
         return r.read()
 
 
-def release(tag):
-    """The GitHub release for this version, once it has every file; None while GitHub is still building."""
+def size_of(url):
+    """The size of a release file from its download link (no API, so no rate limit); None while it isn't there."""
+    req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": AGENT["User-Agent"]})
     try:
-        rel = json.loads(get(f"https://api.github.com/repos/{REPO}/releases/tags/{tag}"))
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return int(r.headers.get("Content-Length") or 0)
     except urllib.error.HTTPError as err:
         if err.code == 404:
             return None
         raise
-    names = {a["name"] for a in rel.get("assets", [])}
-    return rel if names >= set(PLATFORMS.values()) | {"SHA256SUMS.txt"} else None
+
+
+def release(tag):
+    """The sizes of this version's release files once every one is on GitHub; None while it's still building."""
+    base = f"https://github.com/{REPO}/releases/download/{tag}"
+    sizes = {}
+    for name in sorted(set(PLATFORMS.values()) | {"SHA256SUMS.txt", "Anti-Horizon-Launcher-mac.dmg"}):
+        size = size_of(f"{base}/{name}")
+        if size is None:
+            return None
+        sizes[name] = size
+    return sizes
 
 
 def main():
@@ -102,7 +114,7 @@ def main():
     del env
 
     # The download sizes, for the website.
-    sizes = {a["name"]: a["size"] for a in rel["assets"]}
+    sizes = rel
     open(os.path.join(OUT, "sizes.json"), "w", encoding="utf-8").write(json.dumps(sizes, indent=2))
 
     for platform, name in PLATFORMS.items():
